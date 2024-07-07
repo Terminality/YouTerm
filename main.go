@@ -17,6 +17,7 @@ func check(e error) {
 	}
 }
 
+// TODO: Figure out where to handle channel management. Presently leaning toward its own module, or a ChannelManager thing in API
 func main() {
 	// apiKEY, _ := API.GetKeyFromEnv()
 	// check(err)

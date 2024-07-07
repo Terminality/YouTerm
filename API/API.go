@@ -26,6 +26,9 @@ func GetKeyFromEnv() (string, error) {
 //
 // }
 
+// TODO: Get subscription list from user
+// TODO: Add videos to user's Watch Later playlist
+
 func getServiceFromAPI(ctx context.Context, APIkey string) *youtube.Service {
 	service, err := youtube.NewService(ctx, option.WithAPIKey(APIkey))
 	if err != nil {
@@ -45,6 +48,8 @@ func MainAPI() {
 	service := getServiceFromAPI(ctx, APIKey)
 
 	listInfoByChannelUsername(service, []string{"snippet", "contentDetails", "statistics"}, "Northernlion")
+	listInfoByChannelUsername(service, []string{"snippet", "contentDetails", "statistics"}, "CobaltStreak")
+	listInfoByChannelUsername(service, []string{"snippet", "contentDetails", "statistics"}, "FakeGoogleUsername")
 }
 
 func listInfoByChannelUsername(service *youtube.Service, thingsToLoad []string, username string) {
@@ -53,6 +58,11 @@ func listInfoByChannelUsername(service *youtube.Service, thingsToLoad []string, 
 	resp, err := call.Do()
 	if err != nil {
 		log.Fatalf("Error making API call: %v", err)
+	}
+
+	if len(resp.Items) == 0 {
+		fmt.Println("No channel found with username ", username)
+		return
 	}
 
 	fmt.Println(fmt.Sprintf("This channel's ID is %s. Its title is '%s', "+
