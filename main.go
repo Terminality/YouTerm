@@ -1,14 +1,27 @@
 package main
 
+// TODO: Figure out caching and storage
+// TODO: Different row colors for different things
+//	Cyan:	new since last open/refresh
+//	Red:	unwatched
+//	Green:	watched
+//	Grey:	hidden
+// TODO: Channel management
+// TODO: Playlist management
+// TODO: Some sort of actual visualization
+
 import (
-	"dalton.dog/YouTerm/API"
-	//"dalton.dog/YouTerm/TUI"
+	//"context"
+	//"fmt"
+
+	//"dalton.dog/YouTerm/API"
+	"dalton.dog/YouTerm/TUI"
 	// "dalton.dog/YouTerm/StorageIO"
 	// "errors"
 	// "fmt"
 	// "os"
 	//tea "github.com/charmbracelet/bubbletea"
-	//"github.com/charmbracelet/log"
+	"github.com/charmbracelet/log"
 )
 
 func check(e error) {
@@ -17,15 +30,29 @@ func check(e error) {
 	}
 }
 
-// TODO: Figure out where to handle channel management. Presently leaning toward its own module, or a ChannelManager thing in API
 func main() {
-	// apiKEY, _ := API.GetKeyFromEnv()
-	// check(err)
+	program := TUI.MakeProgram()
 
-	// fmt.Printf("Got the API Key: %s", apiKEY)
+	if _, err := program.Run(); err != nil {
+		log.Fatal(err)
+	}
+	// fmt.Println("Launching API test")
+	// ctx := context.Background()
+	//
+	// service := API.GetService(ctx)
+	//
+	// fmt.Println("Service successfully created")
+	//
+	// videoIDs := API.GetUploadsForChannel(service, "", "Northernlion", "")
+	//
+	// for _, video := range videoIDs {
+	// 	API.PrintInfoForVideo(service, video)
+	// }
 
-	//visuals.TestProgram()
-	API.MainAPI()
+}
+
+func startTeaLoop() {
+
 }
 
 func getAPIKey() (string, error) {
