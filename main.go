@@ -31,6 +31,15 @@ func check(e error) {
 	}
 }
 
+// NOTE:
+// Probably should also maintain some sort of "Username -> ID" mapping. The user definitely won't just have the Channel ID readily available
+
+// TODO:
+// Search by username, generate Channel struct
+// Save Channel struct to database, using its ID as the key
+// Also update the username -> ID map
+// Add a few channels by username, list them out, and then be able to load them between executions
+
 func main() {
 	Storage.Startup()
 	defer Storage.Shutdown()
