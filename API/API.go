@@ -54,7 +54,7 @@ func GetIDFromAPI(username string) string {
 func GetKeyFromEnv() (string, error) {
 	api := os.Getenv("YOUTERM_API_KEY")
 	if api != "" {
-		fmt.Println(fmt.Sprintf("Key loaded: %v", api))
+		// fmt.Println(fmt.Sprintf("Key loaded: %v", api))
 		return api, nil
 	}
 	// TODO: Prompt user for API key, then save it to env variable (os.Setenv())
