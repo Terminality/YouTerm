@@ -15,8 +15,10 @@ import (
 	//"fmt"
 
 	//"dalton.dog/YouTerm/API"
+	"dalton.dog/YouTerm/API"
 	"dalton.dog/YouTerm/Storage"
 	"dalton.dog/YouTerm/TUI"
+
 	// "dalton.dog/YouTerm/StorageIO"
 	// "errors"
 	// "fmt"
@@ -44,7 +46,9 @@ func main() {
 	Storage.Startup()
 	defer Storage.Shutdown()
 
-	program := TUI.MakeProgram()
+	API.InitializeManager()
+
+	program := TUI.NewPromptProgram()
 
 	if _, err := program.Run(); err != nil {
 		log.Fatal(err)

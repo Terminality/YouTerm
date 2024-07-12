@@ -12,6 +12,45 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
+var masterAPI *apiManager
+
+type apiManager struct {
+	ctx     context.Context
+	apiKey  string
+	service *youtube.Service
+}
+
+func InitializeManager() {
+	ctx := context.Background()
+	APIKey, err := GetKeyFromEnv()
+	if err != nil {
+		log.Fatalf("Error getting API Key: %v", err)
+	}
+
+	service := getServiceFromAPI(ctx, APIKey)
+
+	masterAPI = &apiManager{
+		ctx:     ctx,
+		apiKey:  APIKey,
+		service: service,
+	}
+}
+
+func GetIDFromAPI(username string) string {
+	channelCall := masterAPI.service.Channels.List([]string{"contentDetails"})
+	if username != "" {
+		channelCall.ForUsername(username)
+	} else {
+		log.Fatalln("No channel identifier passed into request!")
+	}
+	channelResponse, err := channelCall.Do()
+	if err != nil {
+		log.Fatalf("Channel content information couldn't be obtained: %v", err)
+	}
+
+	return channelResponse.Items[0].Id
+}
+
 func GetKeyFromEnv() (string, error) {
 	api := os.Getenv("YOUTERM_API_KEY")
 	if api != "" {
@@ -92,7 +131,7 @@ func PrintInfoForVideo(service *youtube.Service, videoID string) {
 }
 
 func GetUploadsForChannel(service *youtube.Service, channelID string, channelUsername string, pageID string) []string {
-	fmt.Sprintf("Trying to fetch uploads for %v\n", channelUsername)
+	// fmt.Sprintf("Trying to fetch uploads for %v\n", channelUsername)
 	// TODO: Check to see if we've already loaded this channel before, and have its uploadID stored
 	channelCall := service.Channels.List([]string{"contentDetails"})
 	if channelID != "" {
@@ -107,7 +146,7 @@ func GetUploadsForChannel(service *youtube.Service, channelID string, channelUse
 		log.Fatalf("Channel content information couldn't be obtained: %v", err)
 	}
 
-	fmt.Sprintln(channelResponse)
+	// fmt.Sprintln(channelResponse)
 
 	// TODO: Implement a check for successive pages using the pageID
 
@@ -125,6 +164,17 @@ func GetUploadsForChannel(service *youtube.Service, channelID string, channelUse
 	}
 
 	return videoIDs
+}
+
+func GetInfoByUsername(username string) *youtube.ChannelListResponse {
+	call := masterAPI.service.Channels.List([]string{"snippet", "contentDetails", "statistics"})
+	call = call.ForUsername(username)
+	resp, err := call.Do()
+	if err != nil {
+		log.Fatalf("Error making API call: %v", err)
+	}
+
+	return resp
 }
 
 func listInfoByChannelUsername(service *youtube.Service, thingsToLoad []string, username string) {

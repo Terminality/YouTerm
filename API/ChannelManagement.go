@@ -1,22 +1,11 @@
 package API
 
-type Video struct {
-	videoID     string
-	watchStatus bool
-}
-
-type Channel struct {
-	username          string
-	channelID         string
-	uploadsPlaylistID string
-}
-
 type ChannelManager struct {
 	subbedChannels []*Channel
 }
 
-func (cm *ChannelManager) AddChannel(channelID string) {
-	newChannel := &Channel{channelID: channelID}
+func (cm *ChannelManager) SubToChannel(channelID string) {
+	newChannel := &Channel{ID: channelID}
 	cm.subbedChannels = append(cm.subbedChannels, newChannel)
 }
 

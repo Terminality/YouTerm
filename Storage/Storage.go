@@ -2,6 +2,7 @@ package Storage
 
 import (
 	"log"
+	"os"
 	"os/user"
 	"path"
 
@@ -27,6 +28,7 @@ type DatabaseManager struct {
 func (dbm *DatabaseManager) Initialize() {
 
 	dbm.saveFilePath = path.Join(getCurUserHomeDir(), ".terminalize", "youterm.db")
+	os.MkdirAll(path.Join(getCurUserHomeDir(), ".terminalize"), os.ModePerm)
 
 	tempDB, err := bolt.Open(dbm.saveFilePath, 0644, nil) // 0644 indicates user R/W, group and other R
 	checkErr(err)
