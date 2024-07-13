@@ -1,24 +1,40 @@
 package models
 
 import (
-	"dalton.dog/YouTerm/modules/API"
+	"encoding/json"
 	"errors"
 	"fmt"
+
+	"dalton.dog/YouTerm/modules/API"
+	"dalton.dog/YouTerm/modules/Storage"
 )
 
 type Channel struct {
 	ID                string
-	bucket            string
-	title             string
-	views             uint64
-	subscribers       uint64
-	videos            uint64
-	uploadsPlaylistID string
+	Bucket            string
+	ChannelTitle      string
+	Views             uint64
+	Subscribers       uint64
+	Videos            uint64
+	UploadsPlaylistID string
 }
 
-func (c Channel) Title() string       { return c.title }
-func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.views) }
-func (c Channel) FilterValue() string { return c.title }
+func (c *Channel) GetID() string         { return c.ID }
+func (c *Channel) GetBucketName() string { return c.Bucket }
+
+func (c *Channel) MarshalData() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+func (c *Channel) UnmarshalData(data []byte) *Channel {
+	var output Channel
+	json.Unmarshal(data, &output)
+	return &output
+}
+
+func (c Channel) Title() string       { return c.ChannelTitle }
+func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.Views) }
+func (c Channel) FilterValue() string { return c.ChannelTitle }
 
 func NewChannel(userID string, username string, userHandle string) (*Channel, error) {
 	resp := API.RequestChannelFromAPI(userID, username, userHandle)
@@ -31,18 +47,19 @@ func NewChannel(userID string, username string, userHandle string) (*Channel, er
 
 	var channel = Channel{
 		ID:                channelRsrc.Id,
-		bucket:            "Channels",
-		title:             channelRsrc.Snippet.Title,
-		views:             channelRsrc.Statistics.ViewCount,
-		subscribers:       channelRsrc.Statistics.SubscriberCount,
-		videos:            channelRsrc.Statistics.VideoCount,
-		uploadsPlaylistID: channelRsrc.ContentDetails.RelatedPlaylists.Uploads,
+		Bucket:            "Channels",
+		ChannelTitle:      channelRsrc.Snippet.Title,
+		Views:             channelRsrc.Statistics.ViewCount,
+		Subscribers:       channelRsrc.Statistics.SubscriberCount,
+		Videos:            channelRsrc.Statistics.VideoCount,
+		UploadsPlaylistID: channelRsrc.ContentDetails.RelatedPlaylists.Uploads,
 	}
+	channel.Save()
 	return &channel, nil
 }
 
 func (c *Channel) Save() {
-
+	Storage.SaveResource(c)
 }
 
 func (c *Channel) ToString() string { return "" }

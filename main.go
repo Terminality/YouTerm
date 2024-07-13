@@ -14,6 +14,11 @@ import (
 	//"context"
 	//"fmt"
 
+	"encoding/json"
+	"os"
+	"strconv"
+
+	"dalton.dog/YouTerm/models"
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/modules/TUI"
@@ -46,7 +51,12 @@ func main() {
 
 	API.InitializeManager()
 
-	program := TUI.NewPromptProgram()
+	data := Storage.LoadResource("Users", strconv.Itoa(os.Getuid()))
+	var user *models.User
+	json.Unmarshal(data, &user)
+	defer Storage.SaveResource(user)
+
+	program := TUI.NewPromptProgram(user)
 
 	if _, err := program.Run(); err != nil {
 		log.Fatal(err)

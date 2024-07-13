@@ -1,41 +1,69 @@
 package TUI
 
 import (
+	"encoding/json"
+	"log"
+
 	"dalton.dog/YouTerm/models"
+	"dalton.dog/YouTerm/modules/Storage"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 var listStyle = lipgloss.NewStyle().Padding(1, 2)
 
 type errMsg error
+type channelMsg *models.Channel
 
 type model struct {
 	inputModel  textinput.Model
 	listShowing bool
 	listModel   list.Model
+	user        *models.User
 	err         error
 }
 
-func newModel() tea.Model {
+// TODO: Populate initial list from user's list
+func newModel(user *models.User) tea.Model {
 	var input = textinput.New()
 	input.Placeholder = "Northernlion"
-	list := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	listItems := []list.Item{}
+	for _, id := range user.SubbedList {
+		var channel *models.Channel
+		var err error
+		bytes := Storage.LoadResource("Channels", id)
+		if bytes == nil {
+			channel, err = models.NewChannel(id, "", "")
+		} else {
+			err = json.Unmarshal(bytes, &channel)
+		}
+		checkErr(err)
+		listItems = append(listItems, channel)
+
+	}
+	list := list.New(listItems, list.NewDefaultDelegate(), 0, 0)
 	// list.Title = "Subscribed Channels"
 
 	model := model{
 		inputModel:  input,
 		listShowing: true,
 		listModel:   list,
+		user:        user,
 	}
 
 	return model
 }
 
-func NewPromptProgram() *tea.Program {
-	return tea.NewProgram(newModel(), tea.WithAltScreen())
+func NewPromptProgram(user *models.User) *tea.Program {
+	return tea.NewProgram(newModel(user), tea.WithAltScreen())
 }
 
 func (m model) Init() tea.Cmd {
@@ -75,6 +103,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case channelMsg:
 		var channel *models.Channel = msg
+		m.user.SubbedList = append(m.user.SubbedList, channel.GetID())
 		cmd = m.listModel.InsertItem(0, channel)
 		return m, cmd
 	}
@@ -103,5 +132,3 @@ func loadChannelFromAPI(username string) tea.Cmd {
 		return channelMsg(channel)
 	}
 }
-
-type channelMsg *models.Channel
