@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	//"dalton.dog/YouTerm/API"
-	"dalton.dog/YouTerm/API"
+	"dalton.dog/YouTerm/modules/API"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"

@@ -14,12 +14,10 @@ import (
 	//"context"
 	//"fmt"
 
-	//"dalton.dog/YouTerm/API"
-	"dalton.dog/YouTerm/API"
-	"dalton.dog/YouTerm/Storage"
-	"dalton.dog/YouTerm/TUI"
+	"dalton.dog/YouTerm/modules/API"
+	"dalton.dog/YouTerm/modules/Storage"
+	"dalton.dog/YouTerm/modules/TUI"
 
-	// "dalton.dog/YouTerm/StorageIO"
 	// "errors"
 	// "fmt"
 	// "os"
