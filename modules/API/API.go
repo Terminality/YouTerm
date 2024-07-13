@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+
 	// "net/http"
 	"os"
 
@@ -164,6 +165,17 @@ func GetUploadsForChannel(service *youtube.Service, channelID string, channelUse
 	}
 
 	return videoIDs
+}
+
+func RequestChannelFromAPI(userID string, username string, handle string) *youtube.ChannelListResponse {
+	call := masterAPI.service.Channels.List([]string{"snippet", "contentDetails", "statistics"})
+	call = call.ForUsername(username)
+	resp, err := call.Do()
+	if err != nil {
+		log.Fatalf("Error making API call: %v", err)
+	}
+
+	return resp
 }
 
 func GetInfoByUsername(username string) *youtube.ChannelListResponse {

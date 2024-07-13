@@ -1,10 +1,7 @@
 package TUI
 
 import (
-	"fmt"
-
-	//"dalton.dog/YouTerm/API"
-	"dalton.dog/YouTerm/modules/API"
+	"dalton.dog/YouTerm/models"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,12 +17,6 @@ type model struct {
 	listShowing bool
 	listModel   list.Model
 	err         error
-}
-
-type InputModel struct {
-	textInput     textinput.Model
-	channelToShow *API.Channel
-	err           error
 }
 
 func newModel() tea.Model {
@@ -50,14 +41,6 @@ func NewPromptProgram() *tea.Program {
 func (m model) Init() tea.Cmd {
 	return nil
 }
-
-type item struct {
-	username string
-}
-
-func (i item) Title() string       { return i.username }
-func (i item) Description() string { return "" }
-func (i item) FilterValue() string { return i.username }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
@@ -91,7 +74,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg
 		return m, nil
 	case channelMsg:
-		var channel *API.Channel = msg
+		var channel *models.Channel = msg
 		cmd = m.listModel.InsertItem(0, channel)
 		return m, cmd
 	}
@@ -111,46 +94,9 @@ func (m model) View() string {
 	}
 }
 
-func (im InputModel) Init() tea.Cmd {
-	return textinput.Blink
-}
-
-func (im InputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
-			return im, tea.Quit
-		case tea.KeyDown:
-			im.textInput.SetValue("Oops!")
-			return im, nil
-		case tea.KeyEnter:
-			if im.channelToShow != nil {
-				im.channelToShow = nil
-			} else {
-				cmd = loadChannelFromAPI(im.textInput.Value())
-				im.textInput.SetValue("")
-			}
-			return im, cmd
-		}
-		im.textInput, cmd = im.textInput.Update(msg)
-		return im, cmd
-	case errMsg:
-		im.err = error(msg)
-		return im, nil
-	case channelMsg:
-		im.channelToShow = msg
-		return im, nil
-	}
-
-	return im, nil
-}
-
 func loadChannelFromAPI(username string) tea.Cmd {
 	return func() tea.Msg {
-		channel, err := API.NewChannelByUsername(username)
+		channel, err := models.NewChannel("", username, "")
 		if err != nil {
 			return errMsg(err)
 		}
@@ -158,20 +104,4 @@ func loadChannelFromAPI(username string) tea.Cmd {
 	}
 }
 
-type channelMsg *API.Channel
-
-func (im InputModel) View() string {
-	if im.err != nil {
-		return fmt.Sprintln("Uh oh, ran into an error!")
-		//var channel = API.GetChannelStruct(im.usernameToShow)
-		// return API.GetInfoByUsername(im.usernameToShow)
-	} else if im.channelToShow != nil {
-		return im.channelToShow.ToString()
-	} else {
-		return fmt.Sprintf(
-			"What channel do you want to query the API for?\n\n%s\n\n%s",
-			im.textInput.View(),
-			"(esc to quit)",
-		) + "\n"
-	}
-}
+type channelMsg *models.Channel

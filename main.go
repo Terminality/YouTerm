@@ -66,14 +66,6 @@ func main() {
 
 }
 
-func startTeaLoop() {
-
-}
-
-func getAPIKey() (string, error) {
-	return "", nil
-}
-
 // Snippets / Notes / References / Whatever
 
 // ~ Environment Variables ~

@@ -6,3 +6,5 @@ type Resource struct {
 }
 
 func (r *Resource) Save() {}
+
+func (r *Resource) ToString() {}
