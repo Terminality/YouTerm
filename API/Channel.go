@@ -14,6 +14,10 @@ type Channel struct {
 	uploadedVideoIDs  []string
 }
 
+func (c Channel) Title() string       { return c.title }
+func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.totalViews) }
+func (c Channel) FilterValue() string { return c.title }
+
 func NewChannelByUsername(username string) (*Channel, error) {
 
 	resp := GetInfoByUsername(username)

@@ -80,7 +80,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.listShowing {
 				break
 			}
-			cmd = m.listModel.InsertItem(0, item{m.inputModel.Value()})
+			cmd = loadChannelFromAPI(m.inputModel.Value())
 			m.inputModel.SetValue("")
 			m.listShowing = true
 			m.inputModel.Blur()
@@ -90,6 +90,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		return m, nil
+	case channelMsg:
+		var channel *API.Channel = msg
+		cmd = m.listModel.InsertItem(0, channel)
+		return m, cmd
 	}
 
 	m.inputModel, cmd = m.inputModel.Update(msg)
