@@ -2,36 +2,59 @@ package models
 
 import (
 	"encoding/json"
+	"slices"
 
 	"dalton.dog/YouTerm/modules/Storage"
 )
 
 type User struct {
 	ID         string
-	lists      map[string]List
+	Bucket     string
+	UserLists  map[string][]string
 	SubbedList []string
 }
 
 func (u *User) GetID() string         { return u.ID }
-func (u *User) GetBucketName() string { return "Users" }
+func (u *User) GetBucketName() string { return u.Bucket }
 
 func (u *User) MarshalData() ([]byte, error) {
 	return json.Marshal(u)
 }
 
-func CreateUser(ID string) *User {
-	bytes := Storage.LoadResource("Lists", "Subscribed")
-
-	var list []string
-
-	json.Unmarshal(bytes, &list)
-
-	return &User{
-		ID:         ID,
-		SubbedList: list,
+func (u *User) AddToList(listName string, ID string) bool {
+	list := u.UserLists[listName]
+	if list != nil && !slices.Contains(list, ID) {
+		list = append(list, ID)
+		u.UserLists[listName] = list
+		return true
 	}
+	return false
 }
 
-func (u *User) Save() {
+func (u *User) GetList(listName string) []string {
+	return u.UserLists[listName]
+}
 
+func LoadOrCreateUser(ID string) *User {
+	bytes := Storage.LoadResource(Storage.USERS, ID)
+
+	if bytes != nil {
+		var user *User
+		json.Unmarshal(bytes, &user)
+		return user
+	}
+
+	userLists := make(map[string][]string)
+
+	userLists[SUBBED_TO] = []string{}
+	userLists[WATCH_LATER] = []string{}
+
+	newUser := &User{
+		ID:        ID,
+		Bucket:    Storage.USERS,
+		UserLists: userLists,
+	}
+
+	Storage.SaveResource(newUser)
+	return newUser
 }

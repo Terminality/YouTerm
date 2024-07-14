@@ -9,6 +9,11 @@ import (
 	"dalton.dog/YouTerm/modules/Storage"
 )
 
+var (
+	SUBBED_TO   string = "Subbed"
+	WATCH_LATER string = "WatchLater"
+)
+
 type Channel struct {
 	ID                string
 	Bucket            string
@@ -19,22 +24,21 @@ type Channel struct {
 	UploadsPlaylistID string
 }
 
-func (c *Channel) GetID() string         { return c.ID }
-func (c *Channel) GetBucketName() string { return c.Bucket }
+// Implements bubbletea/list/listitem
+func (c Channel) Title() string       { return c.ChannelTitle }
+func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.Views) }
+func (c Channel) FilterValue() string { return c.ChannelTitle }
 
-func (c *Channel) MarshalData() ([]byte, error) {
-	return json.Marshal(c)
-}
+// Impelements Storage.Resource
+func (c *Channel) GetID() string                { return c.ID }
+func (c *Channel) GetBucketName() string        { return c.Bucket }
+func (c *Channel) MarshalData() ([]byte, error) { return json.Marshal(c) }
 
 func (c *Channel) UnmarshalData(data []byte) *Channel {
 	var output Channel
 	json.Unmarshal(data, &output)
 	return &output
 }
-
-func (c Channel) Title() string       { return c.ChannelTitle }
-func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.Views) }
-func (c Channel) FilterValue() string { return c.ChannelTitle }
 
 func NewChannel(userID string, username string, userHandle string) (*Channel, error) {
 	resp := API.RequestChannelFromAPI(userID, username, userHandle)
@@ -47,7 +51,7 @@ func NewChannel(userID string, username string, userHandle string) (*Channel, er
 
 	var channel = Channel{
 		ID:                channelRsrc.Id,
-		Bucket:            "Channels",
+		Bucket:            Storage.CHANNELS,
 		ChannelTitle:      channelRsrc.Snippet.Title,
 		Views:             channelRsrc.Statistics.ViewCount,
 		Subscribers:       channelRsrc.Statistics.SubscriberCount,

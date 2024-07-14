@@ -11,26 +11,17 @@ package main
 // TODO: Some sort of actual visualization
 
 import (
-	//"context"
-	//"fmt"
-
-	"encoding/json"
-	"os"
-	"strconv"
+	osUser "os/user"
 
 	"dalton.dog/YouTerm/models"
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/modules/TUI"
 
-	// "errors"
-	// "fmt"
-	// "os"
-	//tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
 )
 
-func check(e error) {
+func checkErr(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
@@ -51,10 +42,11 @@ func main() {
 
 	API.InitializeManager()
 
-	data := Storage.LoadResource("Users", strconv.Itoa(os.Getuid()))
-	var user *models.User
-	json.Unmarshal(data, &user)
-	defer Storage.SaveResource(user)
+	curUser, err := osUser.Current()
+	checkErr(err)
+
+	user := models.LoadOrCreateUser(curUser.Username)
+	defer Storage.SaveResource(user) // This ensures any changes to the user get closed when program closes
 
 	program := TUI.NewPromptProgram(user)
 

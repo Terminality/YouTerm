@@ -2,6 +2,7 @@ package TUI
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"dalton.dog/YouTerm/models"
@@ -31,12 +32,11 @@ type model struct {
 	err         error
 }
 
-// TODO: Populate initial list from user's list
 func newModel(user *models.User) tea.Model {
 	var input = textinput.New()
 	input.Placeholder = "Northernlion"
 	listItems := []list.Item{}
-	for _, id := range user.SubbedList {
+	for _, id := range user.GetList(models.SUBBED_TO) {
 		var channel *models.Channel
 		var err error
 		bytes := Storage.LoadResource("Channels", id)
@@ -50,7 +50,7 @@ func newModel(user *models.User) tea.Model {
 
 	}
 	list := list.New(listItems, list.NewDefaultDelegate(), 0, 0)
-	// list.Title = "Subscribed Channels"
+	list.Title = fmt.Sprintf("%v's Channel List", user.GetID())
 
 	model := model{
 		inputModel:  input,
@@ -103,8 +103,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case channelMsg:
 		var channel *models.Channel = msg
-		m.user.SubbedList = append(m.user.SubbedList, channel.GetID())
-		cmd = m.listModel.InsertItem(0, channel)
+		if m.user.AddToList(models.SUBBED_TO, channel.GetID()) {
+			cmd = m.listModel.InsertItem(0, channel)
+		}
 		return m, cmd
 	}
 

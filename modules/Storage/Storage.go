@@ -1,13 +1,24 @@
 package Storage
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 	"os"
 	"os/user"
 	"path"
 
 	bolt "go.etcd.io/bbolt"
+)
+
+// String Constants
+const (
+	SAVE_DIR  string = ".terminality"
+	SAVE_FILE string = "youterm.db"
+
+	USERS    = "Users"
+	LISTS    = "Lists"
+	CHANNELS = "Channels"
+	VIDEOS   = "Videos"
 )
 
 type Resource interface {
@@ -34,8 +45,8 @@ type DatabaseManager struct {
 
 func (dbm *DatabaseManager) Initialize() {
 
-	dbm.saveFilePath = path.Join(getCurUserHomeDir(), ".terminality", "youterm.db")
-	os.MkdirAll(path.Join(getCurUserHomeDir(), ".terminality"), os.ModePerm)
+	dbm.saveFilePath = path.Join(getCurUserHomeDir(), SAVE_DIR, SAVE_FILE)
+	os.MkdirAll(path.Join(getCurUserHomeDir(), SAVE_DIR), os.ModePerm)
 
 	tempDB, err := bolt.Open(dbm.saveFilePath, 0644, nil) // 0644 indicates user R/W, group and other R
 	checkErr(err)
@@ -47,10 +58,10 @@ func (dbm *DatabaseManager) Initialize() {
 func (dbm *DatabaseManager) initializeBuckets() {
 	// Set up buckets
 	dbm.database.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucketIfNotExists([]byte("Channels"))
-		tx.CreateBucketIfNotExists([]byte("Videos"))
-		tx.CreateBucketIfNotExists([]byte("Lists"))
-		tx.CreateBucketIfNotExists([]byte("Users"))
+		tx.CreateBucketIfNotExists([]byte(USERS))
+		tx.CreateBucketIfNotExists([]byte(LISTS))
+		tx.CreateBucketIfNotExists([]byte(CHANNELS))
+		tx.CreateBucketIfNotExists([]byte(VIDEOS))
 
 		return nil
 	})
@@ -60,8 +71,17 @@ func (dbm *DatabaseManager) Shutdown() {
 	masterDBM.database.Close()
 }
 
+func InitializeUser(ID string) {
+	masterDBM.database.Update(func(tx *bolt.Tx) error {
+		tx.CreateBucketIfNotExists([]byte(USERS))
+		//bucket := tx.Bucket([]byte("Users"))
+		//userBucket, err := bucket.CreateBucket([]byte(ID))
+		return nil
+	})
+}
+
 func SaveResource(resource Resource) {
-	fmt.Println("Saving resource", resource)
+	// fmt.Println("Saving resource", resource)
 	masterDBM.database.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(resource.GetBucketName()))
 		resourceData, err := resource.MarshalData()
@@ -73,7 +93,7 @@ func SaveResource(resource Resource) {
 }
 
 func LoadResource(bucketName string, idToLoad string) []byte {
-	fmt.Println("Loading resource", bucketName, idToLoad)
+	// fmt.Println("Loading resource", bucketName, idToLoad)
 	var output []byte
 	masterDBM.database.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
