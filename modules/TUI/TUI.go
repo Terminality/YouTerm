@@ -11,6 +11,8 @@ import (
 	//"github.com/charmbracelet/log"
 )
 
+// NOTE: Consider moving `models/ChannelList.go` to TUI package
+
 type ChannelModel struct {
 	table table.Model
 	user  *models.User
@@ -37,8 +39,7 @@ func MakeNewChannelModel(user *models.User) tea.Model {
 }
 
 func MakeNewProgram(user *models.User) tea.Program {
-	return *tea.NewProgram(MakeNewChannelModel(user))
-
+	return *tea.NewProgram(models.NewChannelList(user))
 }
 
 func (m ChannelModel) Init() tea.Cmd { return nil }

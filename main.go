@@ -1,14 +1,18 @@
 package main
 
-// TODO: Figure out caching and storage
+// TODO: Probably should also maintain some sort of "Username -> ID" mapping
+
+// NOTE: Consider renaming `models` to `resources`
+
 // TODO: Different row colors for different things
 //	Cyan:	new since last open/refresh
 //	Red:	unwatched
 //	Green:	watched
 //	Grey:	hidden
+
 // TODO: Channel management
+
 // TODO: Playlist management
-// TODO: Some sort of actual visualization
 
 import (
 	"flag"
@@ -22,28 +26,25 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+// Utility function for error checking
 func checkErr(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
 }
 
-// NOTE:
-// Probably should also maintain some sort of "Username -> ID" mapping. The user definitely won't just have the Channel ID readily available
-
-// TODO:
-// Search by username, generate Channel struct
-// Save Channel struct to database, using its ID as the key
-// Also update the username -> ID map
-// Add a few channels by username, list them out, and then be able to load them between executions
-
-func main() {
-	debugFlagPtr := flag.Bool("debug", true, "Enable debug logging")
+// Check `debug` flag and appropriately set Debug level printing
+func checkDebug() {
+	debugFlagPtr := flag.Bool("debug", false, "Enable debug logging")
 	flag.Parse()
 	if *debugFlagPtr {
 		log.SetLevel(log.DebugLevel)
 	}
 	log.Debug("Debug logging enabled")
+}
+
+func main() {
+	checkDebug()
 
 	Storage.Startup()
 	defer Storage.Shutdown()
