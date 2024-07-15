@@ -5,8 +5,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	//	gloss "github.com/charmbracelet/lipgloss"
-	"dalton.dog/YouTerm/models"
 	"dalton.dog/YouTerm/modules/Storage"
+	"dalton.dog/YouTerm/resources"
 	table "github.com/evertras/bubble-table/table"
 	//"github.com/charmbracelet/log"
 )
