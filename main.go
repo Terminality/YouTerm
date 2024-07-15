@@ -11,6 +11,7 @@ package main
 // TODO: Some sort of actual visualization
 
 import (
+	"flag"
 	osUser "os/user"
 
 	"dalton.dog/YouTerm/models"
@@ -37,35 +38,38 @@ func checkErr(e error) {
 // Add a few channels by username, list them out, and then be able to load them between executions
 
 func main() {
+	debugFlagPtr := flag.Bool("debug", true, "Enable debug logging")
+	flag.Parse()
+	if *debugFlagPtr {
+		log.SetLevel(log.DebugLevel)
+	}
+	log.Debug("Debug logging enabled")
+
 	Storage.Startup()
 	defer Storage.Shutdown()
 
+	log.Debug("Storage startup complete")
+
 	API.InitializeManager()
+
+	log.Debug("API startup complete")
 
 	curUser, err := osUser.Current()
 	checkErr(err)
-
 	user := models.LoadOrCreateUser(curUser.Username)
+
+	log.Debug("Successfully loaded user", "user", user.ID)
+
 	defer Storage.SaveResource(user) // This ensures any changes to the user get closed when program closes
 
-	program := TUI.NewPromptProgram(user)
+	// program := TUI.NewPromptProgram(user)
+	program := TUI.MakeNewProgram(user)
+
+	log.Debug("Program successfully started")
 
 	if _, err := program.Run(); err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Println("Launching API test")
-	// ctx := context.Background()
-	//
-	// service := API.GetService(ctx)
-	//
-	// fmt.Println("Service successfully created")
-	//
-	// videoIDs := API.GetUploadsForChannel(service, "", "Northernlion", "")
-	//
-	// for _, video := range videoIDs {
-	// 	API.PrintInfoForVideo(service, video)
-	// }
-
 }
 
 // Snippets / Notes / References / Whatever

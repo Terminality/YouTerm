@@ -7,12 +7,31 @@ import (
 
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
+	"github.com/evertras/bubble-table/table"
 )
 
-var (
+const (
 	SUBBED_TO   string = "Subbed"
 	WATCH_LATER string = "WatchLater"
+
+	columnKeyID     string = "ID"
+	columnKeyTitle  string = "title"
+	columnKeyViews  string = "views"
+	columnKeySubs   string = "subs"
+	columnKeyVideos string = "videos"
 )
+
+func MakeChannelTable() table.Model {
+	model := table.New([]table.Column{
+		table.NewColumn(columnKeyTitle, "Title", 10),
+		table.NewColumn(columnKeyViews, "Views", 7),
+		table.NewColumn(columnKeySubs, "Subs", 7),
+		table.NewColumn(columnKeyVideos, "Videos", 8),
+		table.NewColumn(columnKeyID, "ID", 20),
+	})
+
+	return model
+}
 
 type Channel struct {
 	ID                string
@@ -64,6 +83,16 @@ func NewChannel(userID string, username string, userHandle string) (*Channel, er
 
 func (c *Channel) Save() {
 	Storage.SaveResource(c)
+}
+
+func (c *Channel) MakeRow() table.Row {
+	return table.NewRow(table.RowData{
+		columnKeyID:     c.ID,
+		columnKeySubs:   c.Subscribers,
+		columnKeyTitle:  c.ChannelTitle,
+		columnKeyViews:  c.Views,
+		columnKeyVideos: c.Videos,
+	})
 }
 
 func (c *Channel) ToString() string { return "" }

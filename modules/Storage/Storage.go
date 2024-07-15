@@ -2,11 +2,12 @@ package Storage
 
 import (
 	// "fmt"
-	"log"
 	"os"
 	"os/user"
 	"path"
+	"time"
 
+	"github.com/charmbracelet/log"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -44,15 +45,21 @@ type DatabaseManager struct {
 }
 
 func (dbm *DatabaseManager) Initialize() {
+	log.Debug("Trying to initialize database...")
 
 	dbm.saveFilePath = path.Join(getCurUserHomeDir(), SAVE_DIR, SAVE_FILE)
 	os.MkdirAll(path.Join(getCurUserHomeDir(), SAVE_DIR), os.ModePerm)
 
-	tempDB, err := bolt.Open(dbm.saveFilePath, 0644, nil) // 0644 indicates user R/W, group and other R
+	log.Debug("Trying to access save file path", "path", dbm.saveFilePath)
+
+	tempDB, err := bolt.Open(dbm.saveFilePath, 0644, &bolt.Options{Timeout: 10 * time.Second}) // 0644 indicates user R/W, group and other R
+	log.Debug("Database opened")
+
 	checkErr(err)
 	dbm.database = tempDB
 
 	dbm.initializeBuckets()
+	log.Debug("Buckets initialized")
 }
 
 func (dbm *DatabaseManager) initializeBuckets() {
@@ -69,6 +76,7 @@ func (dbm *DatabaseManager) initializeBuckets() {
 
 func (dbm *DatabaseManager) Shutdown() {
 	masterDBM.database.Close()
+	log.Debug("Database closed")
 }
 
 func InitializeUser(ID string) {
