@@ -15,17 +15,17 @@ import (
 
 type ChannelModel struct {
 	table table.Model
-	user  *models.User
+	user  *resources.User
 }
 
-func MakeNewChannelModel(user *models.User) tea.Model {
+func MakeNewChannelModel(user *resources.User) tea.Model {
 	var tableRows []table.Row
-	for _, id := range user.GetList(models.SUBBED_TO) {
-		var channel *models.Channel
+	for _, id := range user.GetList(resources.SUBBED_TO) {
+		var channel *resources.Channel
 		var err error
 		bytes := Storage.LoadResource("Channels", id)
 		if bytes == nil {
-			channel, err = models.NewChannel(id, "", "")
+			channel, err = resources.NewChannel(id, "", "")
 		} else {
 			err = json.Unmarshal(bytes, &channel)
 		}
@@ -33,13 +33,13 @@ func MakeNewChannelModel(user *models.User) tea.Model {
 		tableRows = append(tableRows, channel.MakeRow())
 	}
 	return ChannelModel{
-		table: models.MakeChannelTable().WithRows(tableRows),
+		table: resources.MakeChannelTable().WithRows(tableRows),
 		user:  user,
 	}
 }
 
-func MakeNewProgram(user *models.User) tea.Program {
-	return *tea.NewProgram(models.NewChannelList(user))
+func MakeNewProgram(user *resources.User) tea.Program {
+	return *tea.NewProgram(resources.NewChannelList(user))
 }
 
 func (m ChannelModel) Init() tea.Cmd { return nil }

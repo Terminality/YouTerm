@@ -2,8 +2,6 @@ package main
 
 // TODO: Probably should also maintain some sort of "Username -> ID" mapping
 
-// NOTE: Consider renaming `models` to `resources`
-
 // TODO: Different row colors for different things
 //	Cyan:	new since last open/refresh
 //	Red:	unwatched
@@ -18,10 +16,10 @@ import (
 	"flag"
 	osUser "os/user"
 
-	"dalton.dog/YouTerm/models"
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/modules/TUI"
+	"dalton.dog/YouTerm/resources"
 
 	"github.com/charmbracelet/log"
 )
@@ -57,7 +55,7 @@ func main() {
 
 	curUser, err := osUser.Current()
 	checkErr(err)
-	user := models.LoadOrCreateUser(curUser.Username)
+	user := resources.LoadOrCreateUser(curUser.Username)
 
 	log.Debug("Successfully loaded user", "user", user.ID)
 

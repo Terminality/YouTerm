@@ -1,4 +1,4 @@
-package models
+package TUI
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"dalton.dog/YouTerm/modules/Storage"
+	"dalton.dog/YouTerm/resources"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -24,7 +25,7 @@ var (
 )
 
 type errMsg error
-type channelMsg *Channel
+type channelMsg *resources.Channel
 type listKeyMap struct {
 	addItem    key.Binding
 	removeItem key.Binding
@@ -35,23 +36,23 @@ type ChannelListModel struct {
 	listModel   list.Model
 	active      bool
 	keys        *listKeyMap
-	user        *User
+	user        *resources.User
 	err         error
 	inputModel  textinput.Model
 	listShowing bool
 }
 
-func NewChannelList(user *User) *ChannelListModel {
+func NewChannelList(user *resources.User) *ChannelListModel {
 
 	var input = textinput.New()
 
 	listItems := []list.Item{}
-	for _, id := range user.GetList(SUBBED_TO) {
-		var channel *Channel
+	for _, id := range user.GetList(resources.SUBBED_TO) {
+		var channel *resources.Channel
 		var err error
 		bytes := Storage.LoadResource(Storage.CHANNELS, id)
 		if bytes == nil {
-			channel, err = NewChannel(id, "", "")
+			channel, err = resources.NewChannel(id, "", "")
 		} else {
 			err = json.Unmarshal(bytes, &channel)
 		}
@@ -109,8 +110,8 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg
 		return m, nil
 	case channelMsg:
-		var channel *Channel = msg
-		if m.user.AddToList(SUBBED_TO, channel.GetID()) {
+		var channel *resources.Channel = msg
+		if m.user.AddToList(resources.SUBBED_TO, channel.GetID()) {
 			cmd = m.listModel.InsertItem(0, channel)
 		}
 		return m, cmd
@@ -151,7 +152,7 @@ func newKeyMap() *listKeyMap {
 // TODO: Set up username->ID mapping (or just another username->Channel mapping?)
 func loadChannelFromAPI(username string) tea.Cmd {
 	return func() tea.Msg {
-		channel, err := NewChannel("", username, "")
+		channel, err := resources.NewChannel("", username, "")
 		if err != nil {
 			return errMsg(err)
 		}

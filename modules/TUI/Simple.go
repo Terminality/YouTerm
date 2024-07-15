@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"dalton.dog/YouTerm/models"
 	"dalton.dog/YouTerm/modules/Storage"
+	"dalton.dog/YouTerm/resources"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -22,26 +22,26 @@ func checkErr(err error) {
 var listStyle = lipgloss.NewStyle().Padding(1, 2)
 
 type errMsg error
-type channelMsg *models.Channel
+type channelMsg *resources.Channel
 
 type model struct {
 	inputModel  textinput.Model
 	listShowing bool
 	listModel   list.Model
-	user        *models.User
+	user        *resources.User
 	err         error
 }
 
-func newModel(user *models.User) tea.Model {
+func newModel(user *resources.User) tea.Model {
 	var input = textinput.New()
 	input.Placeholder = "Northernlion"
 	listItems := []list.Item{}
-	for _, id := range user.GetList(models.SUBBED_TO) {
-		var channel *models.Channel
+	for _, id := range user.GetList(resources.SUBBED_TO) {
+		var channel *resources.Channel
 		var err error
 		bytes := Storage.LoadResource("Channels", id)
 		if bytes == nil {
-			channel, err = models.NewChannel(id, "", "")
+			channel, err = resources.NewChannel(id, "", "")
 		} else {
 			err = json.Unmarshal(bytes, &channel)
 		}
@@ -62,7 +62,7 @@ func newModel(user *models.User) tea.Model {
 	return model
 }
 
-func NewPromptProgram(user *models.User) *tea.Program {
+func NewPromptProgram(user *resources.User) *tea.Program {
 	return tea.NewProgram(newModel(user), tea.WithAltScreen())
 }
 
@@ -102,8 +102,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg
 		return m, nil
 	case channelMsg:
-		var channel *models.Channel = msg
-		if m.user.AddToList(models.SUBBED_TO, channel.GetID()) {
+		var channel *resources.Channel = msg
+		if m.user.AddToList(resources.SUBBED_TO, channel.GetID()) {
 			cmd = m.listModel.InsertItem(0, channel)
 		}
 		return m, cmd
@@ -126,7 +126,7 @@ func (m model) View() string {
 
 func loadChannelFromAPI(username string) tea.Cmd {
 	return func() tea.Msg {
-		channel, err := models.NewChannel("", username, "")
+		channel, err := resources.NewChannel("", username, "")
 		if err != nil {
 			return errMsg(err)
 		}

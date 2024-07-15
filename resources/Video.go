@@ -1,4 +1,4 @@
-package models
+package resources
 
 type Video struct {
 	ID     string
