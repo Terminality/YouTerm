@@ -24,6 +24,39 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+// YouTerm entry point
+func main() {
+	checkDebug() // Check CLI flags and enable debug logging if appropriate
+
+	// Startup and ensure shutdown of database
+	Storage.Startup()
+	defer Storage.Shutdown()
+
+	log.Debug("Storage startup complete")
+
+	// Initialize the API manager, create context/server connection
+	API.InitializeManager()
+
+	log.Debug("API startup complete")
+
+	curUser, err := osUser.Current()
+	checkErr(err)
+	user := resources.LoadOrCreateUser(curUser.Username)
+
+	log.Debug("Successfully loaded user", "user", user.ID)
+
+	// This ensures any changes to the user get closed when program closes
+	defer Storage.SaveResource(user)
+
+	program := TUI.MakeNewProgram(user)
+
+	log.Debug("Program successfully started")
+
+	if _, err := program.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // Utility function for error checking
 func checkErr(e error) {
 	if e != nil {
@@ -39,36 +72,6 @@ func checkDebug() {
 		log.SetLevel(log.DebugLevel)
 	}
 	log.Debug("Debug logging enabled")
-}
-
-func main() {
-	checkDebug()
-
-	Storage.Startup()
-	defer Storage.Shutdown()
-
-	log.Debug("Storage startup complete")
-
-	API.InitializeManager()
-
-	log.Debug("API startup complete")
-
-	curUser, err := osUser.Current()
-	checkErr(err)
-	user := resources.LoadOrCreateUser(curUser.Username)
-
-	log.Debug("Successfully loaded user", "user", user.ID)
-
-	defer Storage.SaveResource(user) // This ensures any changes to the user get closed when program closes
-
-	// program := TUI.NewPromptProgram(user)
-	program := TUI.MakeNewProgram(user)
-
-	log.Debug("Program successfully started")
-
-	if _, err := program.Run(); err != nil {
-		log.Fatal(err)
-	}
 }
 
 // Snippets / Notes / References / Whatever

@@ -3,6 +3,7 @@ package TUI
 import (
 	"encoding/json"
 
+	"dalton.dog/YouTerm/modules/TUI/models"
 	tea "github.com/charmbracelet/bubbletea"
 	//	gloss "github.com/charmbracelet/lipgloss"
 	"dalton.dog/YouTerm/modules/Storage"
@@ -10,8 +11,6 @@ import (
 	table "github.com/evertras/bubble-table/table"
 	//"github.com/charmbracelet/log"
 )
-
-// NOTE: Consider moving `models/ChannelList.go` to TUI package
 
 type ChannelModel struct {
 	table table.Model
@@ -39,7 +38,7 @@ func MakeNewChannelModel(user *resources.User) tea.Model {
 }
 
 func MakeNewProgram(user *resources.User) tea.Program {
-	return *tea.NewProgram(resources.NewChannelList(user))
+	return *tea.NewProgram(models.NewChannelList(user))
 }
 
 func (m ChannelModel) Init() tea.Cmd { return nil }

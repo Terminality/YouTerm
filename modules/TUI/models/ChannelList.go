@@ -1,4 +1,4 @@
-package TUI
+package models
 
 import (
 	"encoding/json"
