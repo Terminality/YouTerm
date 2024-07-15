@@ -1,21 +1,70 @@
 package resources
 
-import "github.com/evertras/bubble-table/table"
+import (
+	"encoding/json"
+	"errors"
+
+	"dalton.dog/YouTerm/modules/API"
+	"dalton.dog/YouTerm/modules/Storage"
+	"github.com/evertras/bubble-table/table"
+)
 
 type Video struct {
 	ID          string
-	bucket      string
-	title       string
-	description string
+	Bucket      string
+	Title       string
+	Description string
+	PublishedAt string
 
-	viewCount    uint64
-	likeCount    uint64
-	dislikeCount uint64
-	commentCount uint64
+	ViewCount    uint64
+	LikeCount    uint64
+	DislikeCount uint64
+	CommentCount uint64
 }
 
-func (v *Video) MarshalData() []byte {
-	return nil
+// Impelements Storage.Resource
+func (v *Video) GetID() string                { return v.ID }
+func (v *Video) GetBucketName() string        { return v.Bucket }
+func (v *Video) MarshalData() ([]byte, error) { return json.Marshal(v) }
+
+func LoadOrCreateVideo(videoID string) (*Video, error) {
+	bytes := Storage.LoadResource(Storage.VIDEOS, videoID)
+	if bytes == nil {
+		return NewVideo(videoID)
+	}
+
+	var video *Video
+	json.Unmarshal(bytes, &video)
+	return video, nil
+}
+func NewVideo(videoID string) (*Video, error) {
+	resp, err := API.RequestVideo(videoID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resp.Items) == 0 {
+		return nil, errors.New("Couldn't load that video!")
+	}
+
+	videoRsrc := resp.Items[0]
+
+	video := Video{
+		ID:          videoID,
+		Bucket:      Storage.VIDEOS,
+		Title:       videoRsrc.Snippet.Title,
+		Description: videoRsrc.Snippet.Description,
+		PublishedAt: videoRsrc.Snippet.PublishedAt,
+
+		ViewCount:    videoRsrc.Statistics.ViewCount,
+		LikeCount:    videoRsrc.Statistics.LikeCount,
+		DislikeCount: videoRsrc.Statistics.DislikeCount,
+		CommentCount: videoRsrc.Statistics.CommentCount,
+	}
+
+	video.Save()
+	return &video, nil
 }
 
 func (v *Video) ToRow() table.Row {
@@ -23,5 +72,5 @@ func (v *Video) ToRow() table.Row {
 }
 
 func (v *Video) Save() {
-
+	Storage.SaveResource(v)
 }

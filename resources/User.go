@@ -14,12 +14,9 @@ type User struct {
 	SubbedList []string
 }
 
-func (u *User) GetID() string         { return u.ID }
-func (u *User) GetBucketName() string { return u.Bucket }
-
-func (u *User) MarshalData() ([]byte, error) {
-	return json.Marshal(u)
-}
+func (u *User) GetID() string                { return u.ID }
+func (u *User) GetBucketName() string        { return u.Bucket }
+func (u *User) MarshalData() ([]byte, error) { return json.Marshal(u) }
 
 func (u *User) AddToList(listName string, ID string) bool {
 	list := u.UserLists[listName]
@@ -38,12 +35,16 @@ func (u *User) GetList(listName string) []string {
 func LoadOrCreateUser(ID string) *User {
 	bytes := Storage.LoadResource(Storage.USERS, ID)
 
-	if bytes != nil {
-		var user *User
-		json.Unmarshal(bytes, &user)
-		return user
+	if bytes == nil {
+		return NewUser(ID)
 	}
 
+	var user *User
+	json.Unmarshal(bytes, &user)
+	return user
+}
+
+func NewUser(ID string) *User {
 	userLists := make(map[string][]string)
 
 	userLists[SUBBED_TO] = []string{}

@@ -53,14 +53,20 @@ func (c *Channel) GetID() string                { return c.ID }
 func (c *Channel) GetBucketName() string        { return c.Bucket }
 func (c *Channel) MarshalData() ([]byte, error) { return json.Marshal(c) }
 
-func (c *Channel) UnmarshalData(data []byte) *Channel {
-	var output Channel
-	json.Unmarshal(data, &output)
-	return &output
+func LoadOrCreateChannel(userID string, username string, userHandle string) (*Channel, error) {
+	bytes := Storage.LoadResource(Storage.CHANNELS, userID)
+	if bytes == nil {
+		return NewChannel(userID, username, userHandle)
+	}
+
+	var channel *Channel
+	json.Unmarshal(bytes, &channel)
+	return channel, nil
+
 }
 
 func NewChannel(userID string, username string, userHandle string) (*Channel, error) {
-	resp := API.RequestChannelFromAPI(userID, username, userHandle)
+	resp := API.RequestChannel(userID, username, userHandle)
 
 	if len(resp.Items) == 0 {
 		return nil, errors.New("Couldn't load that channel!")
