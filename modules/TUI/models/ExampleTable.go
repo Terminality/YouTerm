@@ -1,4 +1,4 @@
-package TUI
+package models
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,7 +11,7 @@ func MakeProgram() tea.Program {
 }
 
 func makeNewTableModel() tea.Model {
-	return VideoTableModel{
+	return VideoTableModelBackup{
 		videoTable: table.New([]table.Column{
 			table.NewColumn("name", "Name", 15),
 			table.NewColumn("animal", "Animal", 20),
@@ -30,15 +30,15 @@ func makeRow(name string, animal string) table.Row {
 	})
 }
 
-type VideoTableModel struct {
+type VideoTableModelBackup struct {
 	videoTable table.Model
 }
 
-func (m VideoTableModel) Init() tea.Cmd {
+func (m VideoTableModelBackup) Init() tea.Cmd {
 	return nil
 }
 
-func (m VideoTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m VideoTableModelBackup) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd
@@ -58,6 +58,6 @@ func (m VideoTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m VideoTableModel) View() string {
+func (m VideoTableModelBackup) View() string {
 	return m.videoTable.View()
 }
