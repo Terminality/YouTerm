@@ -1,11 +1,9 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
-	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/resources"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -48,27 +46,30 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 
 	listItems := []list.Item{}
 	for _, id := range user.GetList(resources.SUBBED_TO) {
-		var channel *resources.Channel
-		var err error
-		bytes := Storage.LoadResource(Storage.CHANNELS, id)
-		if bytes == nil {
-			channel, err = resources.NewChannel(id, "", "")
-		} else {
-			err = json.Unmarshal(bytes, &channel)
-		}
+		channel, err := resources.LoadOrCreateChannel(id, "", "")
 		checkErr(err)
 		listItems = append(listItems, channel)
 
 	}
+
 	newList := list.New(listItems, list.NewDefaultDelegate(), 0, 0)
 	newList.Title = fmt.Sprintf("%v's Channel List", user.GetID())
 	newList.Styles.Title = titleStyle
 	newList.SetStatusBarItemName("channel", "channels")
+	keyMap := newKeyMap()
+
+	newList.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keyMap.addItem,
+			keyMap.removeItem,
+			keyMap.selectItem,
+		}
+	}
 
 	newModel := &ChannelListModel{
 		user:        user,
 		active:      false,
-		keys:        newKeyMap(),
+		keys:        keyMap,
 		listModel:   newList,
 		listShowing: true,
 		inputModel:  input,

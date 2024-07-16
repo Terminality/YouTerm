@@ -1,14 +1,19 @@
 package models
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"dalton.dog/YouTerm/resources"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type MasterModel struct {
 	curModel tea.Model
+	user     *resources.User
 }
 
-func NewMasterModel(startingModel tea.Model) *MasterModel {
+func NewMasterModel(startingModel tea.Model, user *resources.User) *MasterModel {
 	return &MasterModel{
 		curModel: startingModel,
+		user:     user,
 	}
 }
 

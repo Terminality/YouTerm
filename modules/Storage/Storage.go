@@ -16,6 +16,7 @@ const (
 	SAVE_DIR  string = ".terminality"
 	SAVE_FILE string = "youterm.db"
 
+	// Buckets
 	USERS    = "Users"
 	LISTS    = "Lists"
 	CHANNELS = "Channels"
@@ -119,6 +120,17 @@ func LoadResource(bucketName string, idToLoad string) []byte {
 		return nil
 	})
 	return output
+}
+
+func ClearBucket(bucketName string) {
+	masterDBM.database.Update(func(tx *bolt.Tx) error {
+		err := tx.DeleteBucket([]byte(bucketName))
+		if err == nil {
+			return err
+		}
+		tx.CreateBucketIfNotExists([]byte(bucketName))
+		return nil
+	})
 }
 
 // Get the home directory of the current user

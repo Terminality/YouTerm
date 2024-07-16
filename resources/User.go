@@ -11,7 +11,8 @@ type User struct {
 	ID         string
 	Bucket     string
 	UserLists  map[string][]string
-	SubbedList []string
+	ActiveList string
+	apiKey     string
 }
 
 func (u *User) GetID() string                { return u.ID }
@@ -51,9 +52,10 @@ func NewUser(ID string) *User {
 	userLists[WATCH_LATER] = []string{}
 
 	newUser := &User{
-		ID:        ID,
-		Bucket:    Storage.USERS,
-		UserLists: userLists,
+		ID:         ID,
+		Bucket:     Storage.USERS,
+		UserLists:  userLists,
+		ActiveList: SUBBED_TO,
 	}
 
 	Storage.SaveResource(newUser)
