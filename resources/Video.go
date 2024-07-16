@@ -10,11 +10,14 @@ import (
 )
 
 type Video struct {
-	ID          string
-	Bucket      string
-	Title       string
-	Description string
-	PublishedAt string
+	ID           string
+	Bucket       string
+	Title        string
+	Description  string
+	PublishedAt  string
+	ChannelID    string
+	ChannelTitle string
+	Duration     string
 
 	ViewCount    uint64
 	LikeCount    uint64
@@ -51,11 +54,14 @@ func NewVideo(videoID string) (*Video, error) {
 	videoRsrc := resp.Items[0]
 
 	video := Video{
-		ID:          videoID,
-		Bucket:      Storage.VIDEOS,
-		Title:       videoRsrc.Snippet.Title,
-		Description: videoRsrc.Snippet.Description,
-		PublishedAt: videoRsrc.Snippet.PublishedAt,
+		ID:           videoID,
+		Bucket:       Storage.VIDEOS,
+		Title:        videoRsrc.Snippet.Title,
+		Description:  videoRsrc.Snippet.Description,
+		PublishedAt:  videoRsrc.Snippet.PublishedAt,
+		ChannelID:    videoRsrc.Snippet.ChannelId,
+		ChannelTitle: videoRsrc.Snippet.ChannelTitle,
+		Duration:     videoRsrc.ContentDetails.Duration,
 
 		ViewCount:    videoRsrc.Statistics.ViewCount,
 		LikeCount:    videoRsrc.Statistics.LikeCount,

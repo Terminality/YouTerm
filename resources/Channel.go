@@ -14,20 +14,20 @@ const (
 	SUBBED_TO   string = "Subbed"
 	WATCH_LATER string = "WatchLater"
 
-	columnKeyID     string = "ID"
-	columnKeyTitle  string = "title"
-	columnKeyViews  string = "views"
-	columnKeySubs   string = "subs"
-	columnKeyVideos string = "videos"
+	keyChannelID     string = "channel_ID"
+	keyChannelTitle  string = "channel_title"
+	keyChannelViews  string = "channel_views"
+	keyChannelSubs   string = "channel_subs"
+	keyChannelVideos string = "channel_videos"
 )
 
 func MakeChannelTable() table.Model {
 	model := table.New([]table.Column{
-		table.NewColumn(columnKeyTitle, "Title", 10),
-		table.NewColumn(columnKeyViews, "Views", 7),
-		table.NewColumn(columnKeySubs, "Subs", 7),
-		table.NewColumn(columnKeyVideos, "Videos", 8),
-		table.NewColumn(columnKeyID, "ID", 20),
+		table.NewColumn(keyChannelTitle, "Title", 10),
+		table.NewColumn(keyChannelViews, "Views", 7),
+		table.NewColumn(keyChannelSubs, "Subs", 7),
+		table.NewColumn(keyChannelVideos, "Videos", 8),
+		table.NewColumn(keyChannelID, "ID", 20),
 	})
 
 	return model
@@ -37,15 +37,18 @@ type Channel struct {
 	ID                string
 	Bucket            string
 	ChannelTitle      string
-	Views             uint64
-	Subscribers       uint64
-	Videos            uint64
+	TotalViewCount    uint64
+	SubCount          uint64
+	VideoCount        uint64
 	UploadsPlaylistID string
+	LoadedUploadIDs   []string
 }
 
-// Implements bubbletea/list/listitem
-func (c Channel) Title() string       { return c.ChannelTitle }
-func (c Channel) Description() string { return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.Views) }
+// Implements bubbletea list item
+func (c Channel) Title() string { return c.ChannelTitle }
+func (c Channel) Description() string {
+	return fmt.Sprintf("ID: %s -- Views: %d", c.ID, c.TotalViewCount)
+}
 func (c Channel) FilterValue() string { return c.ChannelTitle }
 
 // Impelements Storage.Resource
@@ -55,6 +58,7 @@ func (c *Channel) MarshalData() ([]byte, error) { return json.Marshal(c) }
 
 func LoadOrCreateChannel(userID string, username string, userHandle string) (*Channel, error) {
 	bytes := Storage.LoadResource(Storage.CHANNELS, userID)
+
 	if bytes == nil {
 		return NewChannel(userID, username, userHandle)
 	}
@@ -78,26 +82,24 @@ func NewChannel(userID string, username string, userHandle string) (*Channel, er
 		ID:                channelRsrc.Id,
 		Bucket:            Storage.CHANNELS,
 		ChannelTitle:      channelRsrc.Snippet.Title,
-		Views:             channelRsrc.Statistics.ViewCount,
-		Subscribers:       channelRsrc.Statistics.SubscriberCount,
-		Videos:            channelRsrc.Statistics.VideoCount,
+		TotalViewCount:    channelRsrc.Statistics.ViewCount,
+		SubCount:          channelRsrc.Statistics.SubscriberCount,
+		VideoCount:        channelRsrc.Statistics.VideoCount,
 		UploadsPlaylistID: channelRsrc.ContentDetails.RelatedPlaylists.Uploads,
 	}
 	channel.Save()
 	return &channel, nil
 }
 
-func (c *Channel) Save() {
-	Storage.SaveResource(c)
-}
+func (c *Channel) Save() { Storage.SaveResource(c) }
 
 func (c *Channel) MakeRow() table.Row {
 	return table.NewRow(table.RowData{
-		columnKeyID:     c.ID,
-		columnKeySubs:   c.Subscribers,
-		columnKeyTitle:  c.ChannelTitle,
-		columnKeyViews:  c.Views,
-		columnKeyVideos: c.Videos,
+		keyChannelID:     c.ID,
+		keyChannelSubs:   c.SubCount,
+		keyChannelTitle:  c.ChannelTitle,
+		keyChannelViews:  c.TotalViewCount,
+		keyChannelVideos: c.VideoCount,
 	})
 }
 
