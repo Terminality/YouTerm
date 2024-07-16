@@ -18,36 +18,27 @@ type apiManager struct {
 	service *youtube.Service
 }
 
-func InitializeManager() {
+func InitializeManager() error {
 	ctx := context.Background()
 	APIKey, err := getKeyFromEnv()
+
 	if err != nil {
-		log.Fatalf("Error getting API Key: %v", err)
+		return err
 	}
 
-	service := getServiceFromAPI(ctx, APIKey)
+	service, err := getServiceFromAPI(ctx, APIKey)
+
+	if err != nil {
+		return err
+	}
 
 	masterAPI = &apiManager{
 		ctx:     ctx,
 		apiKey:  APIKey,
 		service: service,
 	}
-}
 
-// TODO: Remove this
-func GetIDFromAPI(username string) string {
-	channelCall := masterAPI.service.Channels.List([]string{"contentDetails"})
-	if username != "" {
-		channelCall.ForUsername(username)
-	} else {
-		log.Fatalln("No channel identifier passed into request!")
-	}
-	channelResponse, err := channelCall.Do()
-	if err != nil {
-		log.Fatalf("Channel content information couldn't be obtained: %v", err)
-	}
-
-	return channelResponse.Items[0].Id
+	return nil
 }
 
 func getKeyFromEnv() (string, error) {
@@ -60,50 +51,17 @@ func getKeyFromEnv() (string, error) {
 	return "", errors.New("Couldn't load YOUTERM_API_KEY from environment variable.")
 }
 
-func getServiceFromAPI(ctx context.Context, APIkey string) *youtube.Service {
+func getServiceFromAPI(ctx context.Context, APIkey string) (*youtube.Service, error) {
 	service, err := youtube.NewService(ctx, option.WithAPIKey(APIkey))
 	if err != nil {
-		log.Fatalf("Error creating new YouTube service: %v", err)
+		return nil, errors.New("Error creating new YouTube service")
 	}
 
-	return service
-}
-
-// TODO: Reimplement this properly
-func GetUploadsForChannel(service *youtube.Service, channelID string, channelUsername string, pageID string) []string {
-	channelCall := service.Channels.List([]string{"contentDetails"})
-	if channelID != "" {
-		channelCall.Id(channelID)
-	} else if channelUsername != "" {
-		channelCall.ForUsername(channelUsername)
-	} else {
-		log.Fatalln("No channel identifier passed into request!")
-	}
-	channelResponse, err := channelCall.Do()
-	if err != nil {
-		log.Fatalf("Channel content information couldn't be obtained: %v", err)
-	}
-
-	// TODO: Implement a check for successive pages using the pageID
-
-	uploadsPlaylist := channelResponse.Items[0].ContentDetails.RelatedPlaylists.Uploads
-	uploadsCall := service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(uploadsPlaylist).MaxResults(20)
-	uploadsResponse, err := uploadsCall.Do()
-	if err != nil {
-		log.Fatalf("Uploads couldn't be obtained from uploads playlist: %v", err)
-	}
-
-	var videoIDs []string
-
-	for _, item := range uploadsResponse.Items {
-		videoIDs = append(videoIDs, item.ContentDetails.VideoId)
-	}
-
-	return videoIDs
+	return service, nil
 }
 
 func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
-	call := masterAPI.service.Videos.List([]string{"snippet", "statistics"})
+	call := masterAPI.service.Videos.List([]string{"snippet", "contentDetails", "statistics"})
 	call = call.Id(videoID)
 	resp, err := call.Do()
 	if err != nil {
@@ -113,6 +71,7 @@ func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
 	return resp, nil
 }
 
+// TODO: Make this return an error like the others
 func RequestChannel(userID string, username string, handle string) *youtube.ChannelListResponse {
 	call := masterAPI.service.Channels.List([]string{"snippet", "contentDetails", "statistics"})
 	call = call.ForUsername(username)
@@ -122,4 +81,21 @@ func RequestChannel(userID string, username string, handle string) *youtube.Chan
 	}
 
 	return resp
+}
+
+func RequestPlaylistContents(playlistID string, pageID string) ([]string, error) {
+	// TODO: Make this actually account for pageID to load additional results
+	uploadsCall := masterAPI.service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(playlistID).MaxResults(20)
+	uploadsResponse, err := uploadsCall.Do()
+	if err != nil {
+		return nil, errors.New("Uploads couldn't be obtained from uploads playlist")
+	}
+
+	var videoIDs []string
+
+	for _, item := range uploadsResponse.Items {
+		videoIDs = append(videoIDs, item.ContentDetails.VideoId)
+	}
+
+	return videoIDs, nil
 }

@@ -35,7 +35,8 @@ func main() {
 	log.Debug("Storage startup complete")
 
 	// Initialize the API manager, create context/server connection
-	API.InitializeManager()
+	err := API.InitializeManager()
+	checkErr(err)
 
 	log.Debug("API startup complete")
 
@@ -50,7 +51,7 @@ func main() {
 
 	program := TUI.MakeNewProgram(user)
 
-	log.Debug("Program successfully started")
+	log.Debug("Program successfully created")
 
 	if _, err := program.Run(); err != nil {
 		log.Fatal(err)
