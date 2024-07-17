@@ -10,7 +10,8 @@ import (
 
 func makeNewProgram(user *resources.User) tea.Program {
 	// return *tea.NewProgram(models.NewChannelList(user))
-	return *tea.NewProgram(models.NewMasterModel(user))
+	models.NewMasterModel(user)
+	return *tea.NewProgram(models.GetMasterModel(), tea.WithAltScreen())
 }
 
 func RunProgram(user *resources.User) error {

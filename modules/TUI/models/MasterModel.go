@@ -5,15 +5,19 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+var TrueMasterModel MasterModel
+
 type MasterModel struct {
 	mainMenu tea.Model
 	curModel tea.Model
 	user     *resources.User
 }
 
-func NewMasterModel(user *resources.User) *MasterModel {
+func GetMasterModel() *MasterModel { return &TrueMasterModel }
+
+func NewMasterModel(user *resources.User) {
 	mainMenu := NewMainMenu(user)
-	return &MasterModel{
+	TrueMasterModel = MasterModel{
 		mainMenu: mainMenu,
 		curModel: mainMenu,
 		user:     user,
@@ -22,8 +26,13 @@ func NewMasterModel(user *resources.User) *MasterModel {
 
 // TODO: Make it so that if this is passed nil, default to a main menu (if that's possible?)
 // If that's not possible, I guess just make a ChangeToMainModel func instead
-func (m *MasterModel) ChangeCurModel(newModel tea.Model) (tea.Model, tea.Cmd) {
+func (m *MasterModel) ChangeModel(newModel tea.Model) (tea.Model, tea.Cmd) {
 	m.curModel = newModel
+	return m.curModel, m.curModel.Init()
+}
+
+func (m *MasterModel) GoHome() (tea.Model, tea.Cmd) {
+	m.curModel = m.mainMenu
 	return m.curModel, m.curModel.Init()
 }
 

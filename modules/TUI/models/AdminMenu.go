@@ -91,7 +91,7 @@ func (m AdminMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = "Videos bucket cleared!"
 			return m, nil
 		case "0", "q", "ctrl+c":
-			return m, tea.Quit
+			return GetMasterModel().GoHome()
 		}
 	}
 	return m, nil
