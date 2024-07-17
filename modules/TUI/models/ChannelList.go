@@ -28,6 +28,7 @@ type listKeyMap struct {
 	addItem    key.Binding
 	removeItem key.Binding
 	selectItem key.Binding
+	adminMenu  key.Binding
 }
 
 type ChannelListModel struct {
@@ -63,6 +64,7 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 			keyMap.addItem,
 			keyMap.removeItem,
 			keyMap.selectItem,
+			keyMap.adminMenu,
 		}
 	}
 
@@ -88,15 +90,19 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := listStyle.GetFrameSize()
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlA:
+		switch msg.String() {
+		case "ctrl+a":
 			if !m.listShowing {
 				break
 			}
 			m.listShowing = false
 			m.inputModel.Focus()
 			return m, nil
-		case tea.KeyEnter:
+
+		case "~":
+			menu := NewAdminMenu(m.user)
+			return menu.Update(msg)
+		case "enter":
 			if m.listShowing {
 				break
 			}
@@ -146,6 +152,10 @@ func newKeyMap() *listKeyMap {
 		selectItem: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "choose"),
+		),
+		adminMenu: key.NewBinding(
+			key.WithKeys("~"),
+			key.WithHelp("~", "admin"),
 		),
 	}
 }
