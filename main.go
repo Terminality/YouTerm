@@ -49,13 +49,8 @@ func main() {
 	// This ensures any changes to the user get closed when program closes
 	defer Storage.SaveResource(user)
 
-	program := TUI.MakeNewProgram(user)
-
-	log.Debug("Program successfully created")
-
-	if _, err := program.Run(); err != nil {
-		log.Fatal(err)
-	}
+	err = TUI.RunProgram(user)
+	checkErr(err)
 }
 
 // Utility function for error checking
