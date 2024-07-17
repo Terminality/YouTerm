@@ -74,7 +74,15 @@ func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
 // TODO: Make this return an error like the others
 func RequestChannel(userID string, username string, handle string) *youtube.ChannelListResponse {
 	call := masterAPI.service.Channels.List([]string{"snippet", "contentDetails", "statistics"})
-	call = call.ForUsername(username)
+
+	if userID != "" {
+		call = call.Id(userID)
+	} else if username != "" {
+		call = call.ForUsername(username)
+	} else if handle != "" {
+		call = call.ForHandle(handle)
+	}
+
 	resp, err := call.Do()
 	if err != nil {
 		log.Fatalf("Error making API call: %v", err)
