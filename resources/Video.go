@@ -3,6 +3,7 @@ package resources
 import (
 	"encoding/json"
 	"errors"
+	"log"
 
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
@@ -41,6 +42,7 @@ func LoadOrCreateVideo(videoID string) (*Video, error) {
 	return video, nil
 }
 func NewVideo(videoID string) (*Video, error) {
+	log.Printf("Creating video -- ID: %v", videoID)
 	resp, err := API.RequestVideo(videoID)
 
 	if err != nil {

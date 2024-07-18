@@ -44,6 +44,7 @@ type ChannelListModel struct {
 
 func NewChannelList(user *resources.User) *ChannelListModel {
 
+	log.Printf("Initializing Channel List -- User: %v\n", user.GetID())
 	var input = textinput.New()
 
 	listItems := []list.Item{}

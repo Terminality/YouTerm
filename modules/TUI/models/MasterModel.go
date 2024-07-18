@@ -29,13 +29,13 @@ func NewMasterModel(user *resources.User) {
 }
 
 func (m *MasterModel) ChangeModel(newModel tea.Model) (tea.Model, tea.Cmd) {
-	log.Print("Changing model", "old", fmt.Sprintf("%T", m.curModel), "new", fmt.Sprintf("%T", newModel))
+	log.Printf("Changing model from %T to %T\n", m.curModel, newModel)
 	m.curModel = newModel
 	return m.curModel, m.curModel.Init()
 }
 
 func (m *MasterModel) GoHome() (tea.Model, tea.Cmd) {
-	log.Print("Going back to main menu")
+	log.Println("Going back to main menu")
 	m.curModel = m.mainMenu
 	return m.curModel, m.curModel.Init()
 }

@@ -7,8 +7,9 @@ import (
 	"path"
 	"time"
 
-	"github.com/charmbracelet/log"
+	shLog "github.com/charmbracelet/log"
 	bolt "go.etcd.io/bbolt"
+	"log"
 )
 
 // String Constants
@@ -51,23 +52,25 @@ type DatabaseManager struct {
 
 // Initializes the DBM
 func (dbm *DatabaseManager) Initialize() {
-	log.Debug("Trying to initialize database...")
+	log.Println("---Initializing Database---")
+	shLog.Debug("Trying to initialize database...")
 
 	// Load save file path and ensure it exists
 	dbm.saveFilePath = path.Join(getCurUserHomeDir(), SAVE_DIR, SAVE_FILE)
 	os.MkdirAll(path.Join(getCurUserHomeDir(), SAVE_DIR), os.ModePerm)
 
-	log.Debug("Trying to access save file path", "path", dbm.saveFilePath)
+	log.Printf("Trying to access save file path: %v\n", dbm.saveFilePath)
 
 	// Open database. Read/Write for user, Read for group & other
 	tempDB, err := bolt.Open(dbm.saveFilePath, 0644, &bolt.Options{Timeout: 10 * time.Second})
-	log.Debug("Database opened")
+	log.Println("Database opened")
 
 	checkErr(err)
 	dbm.database = tempDB
 
 	dbm.initializeBuckets()
-	log.Debug("Buckets initialized")
+	log.Println("Buckets initialized")
+	log.Println("---Database Initialized---")
 }
 
 // Ensure all buckets exist so they can assuredly be loaded later on
@@ -85,20 +88,12 @@ func (dbm *DatabaseManager) initializeBuckets() {
 // Ensure database is properly closed
 func (dbm *DatabaseManager) Shutdown() {
 	masterDBM.database.Close()
-	log.Debug("Database closed")
-}
-
-func InitializeUser(ID string) {
-	masterDBM.database.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucketIfNotExists([]byte(USERS))
-		//bucket := tx.Bucket([]byte("Users"))
-		//userBucket, err := bucket.CreateBucket([]byte(ID))
-		return nil
-	})
+	log.Println("Database closed")
 }
 
 // Save resource to database
 func SaveResource(resource Resource) {
+	log.Printf("Saving resource: %v\n", resource)
 	// fmt.Println("Saving resource", resource)
 	masterDBM.database.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(resource.GetBucketName()))
@@ -112,6 +107,8 @@ func SaveResource(resource Resource) {
 
 // Load resource from database by ID
 func LoadResource(bucketName string, idToLoad string) []byte {
+	log.Printf("Loading resource from %v: %v\n", bucketName, idToLoad)
+
 	// fmt.Println("Loading resource", bucketName, idToLoad)
 	var output []byte
 	masterDBM.database.View(func(tx *bolt.Tx) error {
@@ -123,6 +120,7 @@ func LoadResource(bucketName string, idToLoad string) []byte {
 }
 
 func ClearBucket(bucketName string) {
+	log.Printf("Clearing bucket: %v", bucketName)
 	masterDBM.database.Update(func(tx *bolt.Tx) error {
 		err := tx.DeleteBucket([]byte(bucketName))
 		if err == nil {

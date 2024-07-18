@@ -5,6 +5,7 @@ import (
 	"dalton.dog/YouTerm/resources"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"log"
 )
 
 type MainMenu struct {
@@ -15,6 +16,7 @@ type MainMenu struct {
 }
 
 func NewMainMenu(user *resources.User) *MainMenu {
+	log.Printf("Initializing Main Menu -- User: %v\n", user.GetID())
 	return &MainMenu{
 		user:      user,
 		modelName: "Main Menu",
@@ -24,6 +26,7 @@ func NewMainMenu(user *resources.User) *MainMenu {
 func (m *MainMenu) Init() tea.Cmd { return nil }
 
 func (m *MainMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Println("Main Menu Update")
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

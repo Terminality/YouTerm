@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	"dalton.dog/YouTerm/resources"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertras/bubble-table/table"
@@ -46,6 +48,7 @@ type VideoTableModel struct {
 
 // TODO: Make this actually... load something
 func MakeNewVideoTable(videoIDs []string) *VideoTableModel {
+	log.Printf("Initializing Video Table -- Input List: %v\n", videoIDs)
 	newTable := table.New([]table.Column{
 		table.NewColumn(keyVideoTitle, "Title", 30),
 		table.NewColumn(keyVideoChannel, "Channel", 15),
@@ -74,6 +77,7 @@ func MakeNewVideoTable(videoIDs []string) *VideoTableModel {
 func (m *VideoTableModel) Init() tea.Cmd { return nil }
 
 func (m *VideoTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Println("Video Table Update")
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd

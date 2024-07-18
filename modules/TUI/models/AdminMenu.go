@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
+	"log"
 
 	"strings"
 
@@ -56,6 +57,7 @@ type AdminMenu struct {
 }
 
 func NewAdminMenu(user *resources.User) *AdminMenu {
+	log.Printf("Initializing Admin Menu -- User: %v\n", user.GetID())
 	items := []list.Item{
 		item("1. Clear Channels Bucket"),
 		item("2. Clear Videos Bucket"),

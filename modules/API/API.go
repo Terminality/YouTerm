@@ -3,6 +3,7 @@ package API
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -38,20 +39,25 @@ func InitializeManager() error {
 		service: service,
 	}
 
+	log.Println("Initialized API manager")
+
 	return nil
 }
 
 func getKeyFromEnv() (string, error) {
+	log.Println("Loading API key from env var")
 	api := os.Getenv("YOUTERM_API_KEY")
 	if api != "" {
 		return api, nil
 	}
-	// TODO: Prompt user for API key, then save it to env variable (os.Setenv())
+	// TODO: Prompt user for API key, then save it to env variable (os.Setenv()) or user struct or something
+	//	Or just don't even do this and set up OAuth2 instead
 
 	return "", errors.New("Couldn't load YOUTERM_API_KEY from environment variable.")
 }
 
 func getServiceFromAPI(ctx context.Context, APIkey string) (*youtube.Service, error) {
+	log.Println("Creating service from API key")
 	service, err := youtube.NewService(ctx, option.WithAPIKey(APIkey))
 	if err != nil {
 		return nil, errors.New("Error creating new YouTube service")
@@ -61,6 +67,8 @@ func getServiceFromAPI(ctx context.Context, APIkey string) (*youtube.Service, er
 }
 
 func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
+	log.Printf("API Request (Video) -- ID: %v\n", videoID)
+
 	call := masterAPI.service.Videos.List([]string{"snippet", "contentDetails", "statistics"})
 	call = call.Id(videoID)
 	resp, err := call.Do()
@@ -71,8 +79,9 @@ func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
 	return resp, nil
 }
 
-// TODO: Make this return an error like the others
-func RequestChannel(userID string, username string, handle string) *youtube.ChannelListResponse {
+func RequestChannel(userID string, username string, handle string) (*youtube.ChannelListResponse, error) {
+	log.Printf("API Request (Channel) -- ID: %v -- Username: %v -- Handle: %v\n", userID, username, handle)
+
 	call := masterAPI.service.Channels.List([]string{"snippet", "contentDetails", "statistics"})
 
 	if userID != "" {
@@ -85,14 +94,15 @@ func RequestChannel(userID string, username string, handle string) *youtube.Chan
 
 	resp, err := call.Do()
 	if err != nil {
-		log.Fatalf("Error making API call: %v", err)
+		return nil, errors.New(fmt.Sprintf("Error making API call: %v", err))
 	}
 
-	return resp
+	return resp, nil
 }
 
+// TODO: Make this actually account for pageID to load additional results
 func RequestPlaylistContents(playlistID string, pageID string) ([]string, error) {
-	// TODO: Make this actually account for pageID to load additional results
+	log.Printf("API Request (Playlist) -- ID: %v -- Page ID: %v\n", playlistID, pageID)
 	uploadsCall := masterAPI.service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(playlistID).MaxResults(20)
 	uploadsResponse, err := uploadsCall.Do()
 	if err != nil {

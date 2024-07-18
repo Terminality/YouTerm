@@ -2,6 +2,7 @@ package resources
 
 import (
 	"encoding/json"
+	"log"
 	"slices"
 
 	"dalton.dog/YouTerm/modules/Storage"
@@ -20,6 +21,7 @@ func (u *User) GetBucketName() string        { return u.Bucket }
 func (u *User) MarshalData() ([]byte, error) { return json.Marshal(u) }
 
 func (u *User) AddToList(listName string, ID string) bool {
+	log.Printf("Adding ID (%v) to list %v\n", ID, listName)
 	list := u.UserLists[listName]
 	if list != nil && !slices.Contains(list, ID) {
 		list = append(list, ID)
@@ -30,6 +32,7 @@ func (u *User) AddToList(listName string, ID string) bool {
 }
 
 func (u *User) GetList(listName string) []string {
+	log.Printf("Loading list %v\n", listName)
 	return u.UserLists[listName]
 }
 
@@ -46,6 +49,7 @@ func LoadOrCreateUser(ID string) *User {
 }
 
 func NewUser(ID string) *User {
+	log.Printf("Creating User -- %v\n", ID)
 	userLists := make(map[string][]string)
 
 	userLists[SUBBED_TO] = []string{}

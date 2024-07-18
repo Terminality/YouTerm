@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 
 	"dalton.dog/YouTerm/modules/API"
 	"dalton.dog/YouTerm/modules/Storage"
@@ -70,7 +71,12 @@ func LoadOrCreateChannel(userID string, username string, userHandle string) (*Ch
 }
 
 func NewChannel(userID string, username string, userHandle string) (*Channel, error) {
-	resp := API.RequestChannel(userID, username, userHandle)
+	log.Printf("Making new Channel")
+	resp, err := API.RequestChannel(userID, username, userHandle)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if len(resp.Items) == 0 {
 		return nil, errors.New("Couldn't load that channel!")
