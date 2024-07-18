@@ -49,9 +49,10 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 }
 
 type AdminMenu struct {
-	list   list.Model
-	user   *resources.User
-	status string
+	list      list.Model
+	user      *resources.User
+	status    string
+	modelName string
 }
 
 func NewAdminMenu(user *resources.User) *AdminMenu {
@@ -69,8 +70,9 @@ func NewAdminMenu(user *resources.User) *AdminMenu {
 	list.Styles.HelpStyle = helpStyle
 
 	menu := &AdminMenu{
-		list: list,
-		user: user,
+		list:      list,
+		user:      user,
+		modelName: "Admin Menu",
 	}
 
 	return menu

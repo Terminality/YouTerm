@@ -39,8 +39,9 @@ func makeVideoRow(video *resources.Video) table.Row {
 // Messages
 
 type VideoTableModel struct {
-	videoIDs []string
-	table    table.Model
+	videoIDs  []string
+	table     table.Model
+	modelName string
 }
 
 // TODO: Make this actually... load something
@@ -64,8 +65,9 @@ func MakeNewVideoTable(videoIDs []string) *VideoTableModel {
 		tableRows = append(tableRows, makeVideoRow(video))
 	}
 	return &VideoTableModel{
-		table:    newTable,
-		videoIDs: videoIDs,
+		table:     newTable,
+		videoIDs:  videoIDs,
+		modelName: "Video Table",
 	}
 }
 

@@ -12,6 +12,9 @@ package main
 
 // TODO: Playlist management
 
+// BUG: Updates take a really long time to happen after a startup sometimes
+// TODO: Set up some profiling to see what's taking so long
+// TODO: Implement better debug logging everywhere
 import (
 	"flag"
 	osUser "os/user"
@@ -21,6 +24,7 @@ import (
 	"dalton.dog/YouTerm/modules/TUI"
 	"dalton.dog/YouTerm/resources"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
 )
 
@@ -36,6 +40,12 @@ import (
 
 func main() {
 	checkDebug() // Check CLI flags and enable debug logging if appropriate
+
+	if log.GetLevel() == log.DebugLevel {
+		f, err := tea.LogToFile("debug.log", "debug")
+		checkErr(err)
+		defer f.Close()
+	}
 
 	// Startup and ensure shutdown of database
 	Storage.Startup()

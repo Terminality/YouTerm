@@ -1,8 +1,12 @@
 package models
 
 import (
+	"fmt"
+	"log"
+
 	"dalton.dog/YouTerm/resources"
 	tea "github.com/charmbracelet/bubbletea"
+	//"github.com/charmbracelet/log"
 )
 
 var TrueMasterModel MasterModel
@@ -24,14 +28,14 @@ func NewMasterModel(user *resources.User) {
 	}
 }
 
-// TODO: Make it so that if this is passed nil, default to a main menu (if that's possible?)
-// If that's not possible, I guess just make a ChangeToMainModel func instead
 func (m *MasterModel) ChangeModel(newModel tea.Model) (tea.Model, tea.Cmd) {
+	log.Print("Changing model", "old", fmt.Sprintf("%T", m.curModel), "new", fmt.Sprintf("%T", newModel))
 	m.curModel = newModel
 	return m.curModel, m.curModel.Init()
 }
 
 func (m *MasterModel) GoHome() (tea.Model, tea.Cmd) {
+	log.Print("Going back to main menu")
 	m.curModel = m.mainMenu
 	return m.curModel, m.curModel.Init()
 }
@@ -39,6 +43,7 @@ func (m *MasterModel) GoHome() (tea.Model, tea.Cmd) {
 func (m *MasterModel) Init() tea.Cmd { return m.curModel.Init() }
 
 func (m *MasterModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Print("MasterModel Update", "current", fmt.Sprintf("%T", m.curModel))
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

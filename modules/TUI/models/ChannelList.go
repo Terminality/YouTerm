@@ -39,6 +39,7 @@ type ChannelListModel struct {
 	err         error
 	inputModel  textinput.Model
 	listShowing bool
+	modelName   string
 }
 
 func NewChannelList(user *resources.User) *ChannelListModel {
@@ -75,6 +76,7 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 		listModel:   newList,
 		listShowing: true,
 		inputModel:  input,
+		modelName:   "Channel List",
 	}
 	return newModel
 }
