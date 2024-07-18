@@ -1,24 +1,23 @@
 package models
 
 import (
+	"dalton.dog/YouTerm/modules/TUI/styles"
 	"dalton.dog/YouTerm/resources"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	mainMenuStyle = lipgloss.NewStyle()
-)
-
 type MainMenu struct {
-	user   *resources.User
-	width  int
-	height int
+	user      *resources.User
+	width     int
+	height    int
+	modelName string
 }
 
 func NewMainMenu(user *resources.User) *MainMenu {
 	return &MainMenu{
-		user: user,
+		user:      user,
+		modelName: "Main Menu",
 	}
 }
 
@@ -43,36 +42,10 @@ func (m *MainMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *MainMenu) View() string {
-	s := lipgloss.JoinHorizontal(lipgloss.Top, PlayButtonColor.Render(PlayButtonIcon), YouTermLogo)
+	s := styles.GetColoredLogo()
 	s += "\n\n Welcome, " + m.user.ID + "\n"
 	s += "1. View User Channel List\n"
 	s += "0. View Admin Menu\n"
 	s += "\nPress q to Quit!"
-	s = lipgloss.NewStyle().Align(lipgloss.Center).Render(s)
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, s)
 }
-
-var PlayButtonColor = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
-
-const PlayButtonIcon = `
- ⠀⣠⣶⣶⢿⡿⣿⢿⡿⣿⢿⡿⣿⢿⡿⣿⢿⡿⣿⢿⡿⣶⣶⣄⠀⠀
- ⢰⣿⡽⣾⣻⣽⢯⣿⡽⣯⡿⣽⣯⢿⣽⢯⣿⡽⣯⡿⣽⡷⣯⢿⡇⠀
- ⣼⣯⣟⣷⢿⣽⣻⣞⣿⣳⠛⢿⣾⣻⡽⣿⣞⡿⣽⣻⢷⣟⡿⣯⣿⠀
- ⣿⣾⣿⣾⣿⣷⣿⣿⣾⣿⠀⠀⠘⠻⣿⣷⣿⣿⣿⣿⣿⣾⣿⣷⣿⠀
- ⣿⣷⣻⢷⣯⣟⣾⣽⢾⡿⠀⠀⠀⠀⠀⢉⣾⣯⢿⣳⣯⢿⣽⣻⢿⠀
- ⣿⣷⣻⣟⣾⣽⣳⣯⢿⣻⠀⠀⣀⣴⣾⣟⡿⣞⡿⣯⣟⣯⡿⣽⣿⠀
- ⢸⡷⣟⣾⣻⢾⣽⢯⣟⡿⣶⢿⣻⣟⣾⣽⣻⢯⡿⣷⢯⡿⣽⡷⡿⠀
- ⠘⣿⣻⢷⣻⣯⣟⣯⡿⣽⣻⣯⣟⣾⣽⢾⣯⣟⣿⣽⣻⣽⡷⣿⠇⠀
- ⠀⠈⠛⠻⠽⠾⠽⠷⠿⠿⠷⠿⠾⠿⠾⠿⠾⠽⠾⠷⠿⠷⠛⠁⠀⠀
-`
-
-const YouTermLogo = `
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⣿⣿⣿⣧⠀⠀⢀⣾⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠈⢿⣿⣿⣧⢀⣾⣿⣿⡿⠁⢀⣀⣤⣤⣤⣄⡀⠀⢠⣤⣤⣤⠀⢠⣤⣤⣤⠈⠉⠉⠉⣿⣿⡏⠉⠉⠉⠀⠀⢀⣀⣀⣀⠀⠀⠀⢀⣀⡀⢀⣀⡀⢀⣀⡀⢀⣀⣀⡀⠀⢀⣀⣀⡀⠀
-⠀⠘⢿⣿⣿⣿⣿⣿⡿⠁⢰⣿⣿⣿⣿⣿⣿⣿⣆⢸⣿⣿⣿⠀⢸⣿⣿⣿⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⢀⣾⣿⣿⢿⣿⣿⣆⠀⢸⣿⣷⣿⣿⡇⢸⣿⣿⡿⢿⣿⣿⣾⡿⢿⣿⣿⡆
-⠀⠀⠈⢿⣿⣿⣿⡿⠁⠀⣿⣿⣿⡏⠀⠹⣿⣿⣿⢸⣿⣿⣿⠀⢸⣿⣿⣿⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⣸⣿⣟⣀⣀⣘⣿⣿⠀⢸⣿⣟⠁⠀⠀⢸⣿⡏⠀⠀⢹⣿⡏⠀⠀⢹⣿⡧
-⠀⠀⠀⢸⣿⣿⣿⠁⠀⠀⣿⣿⣿⣇⠀⣠⣿⣿⣿⢸⣿⣿⣿⠀⢸⣿⣿⣿⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⢻⣿⣟⠛⠛⠛⠛⠛⠀⢸⣿⣯⠀⠀⠀⢸⣿⡇⠀⠀⢸⣿⡇⠀⠀⢸⣿⡇
-⠀⠀⠀⢸⣿⣿⣿⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⠏⠘⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠈⠿⣿⣶⣦⣶⣾⡦⠀⢸⣿⣷⠀⠀⠀⢸⣿⡇⠀⠀⢸⣿⣇⠀⠀⢸⣿⣇
-⠀⠀⠀⠘⠛⠛⠛⠀⠀⠀⠀⠈⠙⠛⠛⠛⠋⠁⠀⠀⠈⠛⠛⠛⠛⠛⠛⠛⠀⠀⠀⠀⠉⠉⠁⠀⠀⠀⠀⠀⠈⠉⠉⠉⠁⠀⠀⠈⠉⠉⠀⠀⠀⠈⠉⠁⠀⠀⠈⠉⠉⠀⠀⠈⠉⠉
-`
