@@ -7,7 +7,6 @@ import (
 	"dalton.dog/YouTerm/resources"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -32,20 +31,15 @@ type listKeyMap struct {
 }
 
 type ChannelListModel struct {
-	listModel   list.Model
-	active      bool
-	keys        *listKeyMap
-	user        *resources.User
-	err         error
-	inputModel  textinput.Model
-	listShowing bool
-	modelName   string
+	listModel list.Model
+	keys      *listKeyMap
+	user      *resources.User
+	err       error
+	modelName string
 }
 
 func NewChannelList(user *resources.User) *ChannelListModel {
-
 	log.Printf("Initializing Channel List -- User: %v\n", user.GetID())
-	var input = textinput.New()
 
 	listItems := []list.Item{}
 	for _, id := range user.GetList(resources.SUBBED_TO) {
@@ -71,13 +65,10 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 	}
 
 	newModel := &ChannelListModel{
-		user:        user,
-		active:      false,
-		keys:        keyMap,
-		listModel:   newList,
-		listShowing: true,
-		inputModel:  input,
-		modelName:   "Channel List",
+		user:      user,
+		keys:      keyMap,
+		listModel: newList,
+		modelName: "Channel List",
 	}
 	return newModel
 }
@@ -94,26 +85,9 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+a":
-			if !m.listShowing {
-				break
-			}
-			m.listShowing = false
-			m.inputModel.Focus()
-			return m, nil
-
 		case "~":
 			menu := NewAdminMenu(m.user)
 			return menu.Update(msg)
-		case "enter":
-			if m.listShowing {
-				break
-			}
-			cmd = loadChannelFromAPI(m.inputModel.Value())
-			m.inputModel.SetValue("")
-			m.listShowing = true
-			m.inputModel.Blur()
-			return m, cmd
 		}
 
 	case errMsg:
@@ -127,19 +101,13 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	m.inputModel, cmd = m.inputModel.Update(msg)
-	cmds = append(cmds, cmd)
 	m.listModel, cmd = m.listModel.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m ChannelListModel) View() string {
-	if m.listShowing {
-		return listStyle.Render(m.listModel.View())
-	} else {
-		return m.inputModel.View()
-	}
+	return listStyle.Render(m.listModel.View())
 }
 
 func newKeyMap() *listKeyMap {

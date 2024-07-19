@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/charmbracelet/log v0.4.0
 	github.com/evertras/bubble-table v0.16.1
+	github.com/google/uuid v1.6.0
 	go.etcd.io/bbolt v1.3.10
 	google.golang.org/api v0.187.0
 )
@@ -30,7 +31,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.5 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
