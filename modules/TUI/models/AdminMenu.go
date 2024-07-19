@@ -59,8 +59,8 @@ type AdminMenu struct {
 func NewAdminMenu(user *resources.User) *AdminMenu {
 	log.Printf("Initializing Admin Menu -- User: %v\n", user.GetID())
 	items := []list.Item{
-		item("1. Clear Channels Bucket"),
-		item("2. Clear Videos Bucket"),
+		item("Clear Channels Bucket"),
+		item("Clear Videos Bucket"),
 		//item("3. Clear User Data"),
 		//item("9. Delete Entire Database"),
 	}

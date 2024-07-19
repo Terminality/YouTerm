@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	listHeight = 15
-	listWidth  = 20
+	listHeight = 50
+	listWidth  = 80
 )
 
 var (
@@ -46,10 +46,9 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 		channel, err := resources.LoadOrCreateChannel(id, "", "")
 		checkErr(err)
 		listItems = append(listItems, channel)
-
 	}
 
-	newList := list.New(listItems, list.NewDefaultDelegate(), 0, 0)
+	newList := list.New(listItems, list.NewDefaultDelegate(), listWidth, listHeight)
 	newList.Title = fmt.Sprintf("%v's Channel List", user.GetID())
 	newList.Styles.Title = titleStyle
 	newList.SetStatusBarItemName("channel", "channels")
@@ -107,7 +106,7 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ChannelListModel) View() string {
-	return listStyle.Render(m.listModel.View())
+	return m.listModel.View()
 }
 
 func newKeyMap() *listKeyMap {

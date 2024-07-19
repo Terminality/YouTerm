@@ -22,18 +22,6 @@ const (
 	keyChannelVideos string = "channel_videos"
 )
 
-func MakeChannelTable() table.Model {
-	model := table.New([]table.Column{
-		table.NewColumn(keyChannelTitle, "Title", 10),
-		table.NewColumn(keyChannelViews, "Views", 7),
-		table.NewColumn(keyChannelSubs, "Subs", 7),
-		table.NewColumn(keyChannelVideos, "Videos", 8),
-		table.NewColumn(keyChannelID, "ID", 20),
-	})
-
-	return model
-}
-
 type Channel struct {
 	ID                string
 	Bucket            string
