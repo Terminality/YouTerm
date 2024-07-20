@@ -25,6 +25,7 @@ package main
 //      Set up some profiling to see what's taking so long ASAP
 
 import (
+	"flag"
 	"log"
 	osUser "os/user"
 
@@ -71,5 +72,20 @@ func main() {
 func checkErr(e error) {
 	if e != nil {
 		log.Fatal(e)
+	}
+}
+
+func checkFlags() {
+	clearAll := flag.Bool("clear-all", false, "Clear channel and video buckets, and user lists")
+	clearChannels := flag.Bool("clear-channel", false, "Clear channel bucket")
+	clearVideos := flag.Bool("clear-videos", false, "Clear video bucket")
+
+	flag.Parse()
+
+	if *clearAll || *clearChannels {
+		Storage.ClearBucket(Storage.CHANNELS)
+	}
+	if *clearAll || *clearVideos {
+		Storage.ClearBucket(Storage.VIDEOS)
 	}
 }
