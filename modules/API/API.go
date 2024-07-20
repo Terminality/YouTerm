@@ -73,7 +73,7 @@ func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {
 	call = call.Id(videoID)
 	resp, err := call.Do()
 	if err != nil {
-		return nil, errors.New("Unable to load video")
+		return nil, errors.New(fmt.Sprintf("Error making API call to load video: %v", err))
 	}
 
 	return resp, nil
@@ -101,19 +101,13 @@ func RequestChannel(userID string, username string, handle string) (*youtube.Cha
 }
 
 // TODO: Make this actually account for pageID to load additional results
-func RequestPlaylistContents(playlistID string, pageID string) ([]string, error) {
+func RequestPlaylistContents(playlistID string, pageID string) (*youtube.PlaylistItemListResponse, error) {
 	log.Printf("API Request (Playlist) -- ID: %v -- Page ID: %v\n", playlistID, pageID)
-	uploadsCall := masterAPI.service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(playlistID).MaxResults(20)
+	uploadsCall := masterAPI.service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(playlistID).MaxResults(50)
 	uploadsResponse, err := uploadsCall.Do()
 	if err != nil {
 		return nil, errors.New("Uploads couldn't be obtained from uploads playlist")
 	}
 
-	var videoIDs []string
-
-	for _, item := range uploadsResponse.Items {
-		videoIDs = append(videoIDs, item.ContentDetails.VideoId)
-	}
-
-	return videoIDs, nil
+	return uploadsResponse, nil
 }

@@ -30,7 +30,8 @@ type Channel struct {
 	SubCount          uint64
 	VideoCount        uint64
 	UploadsPlaylistID string
-	LoadedUploadIDs   []string
+	LoadedUploadIDs   map[string]bool
+	LastUploadPageID  string
 }
 
 // Implements bubbletea list item
@@ -54,6 +55,7 @@ func LoadOrCreateChannel(userID string, username string, userHandle string) (*Ch
 
 	var channel *Channel
 	json.Unmarshal(bytes, &channel)
+	channel.LoadUploads()
 	return channel, nil
 
 }
@@ -80,9 +82,32 @@ func NewChannel(userID string, username string, userHandle string) (*Channel, er
 		SubCount:          channelRsrc.Statistics.SubscriberCount,
 		VideoCount:        channelRsrc.Statistics.VideoCount,
 		UploadsPlaylistID: channelRsrc.ContentDetails.RelatedPlaylists.Uploads,
+		LoadedUploadIDs:   map[string]bool{},
+		LastUploadPageID:  "",
 	}
 	channel.Save()
+	go channel.LoadUploads()
 	return &channel, nil
+}
+
+func (c *Channel) LoadUploads() {
+	resp, err := API.RequestPlaylistContents(c.UploadsPlaylistID, c.LastUploadPageID)
+	if err != nil {
+		log.Fatalf("Couldn't load playlist contents: %v", err)
+	}
+
+	for _, playlistItem := range resp.Items {
+		videoID := playlistItem.ContentDetails.VideoId
+		_, exists := c.LoadedUploadIDs[videoID]
+		if !exists {
+			c.LoadedUploadIDs[videoID] = true
+			_, err := NewVideo(videoID)
+			if err != nil {
+				log.Fatalf("Couldn't load video: %v", err)
+			}
+		}
+	}
+	c.Save()
 }
 
 func (c *Channel) Save() { Storage.SaveResource(c) }

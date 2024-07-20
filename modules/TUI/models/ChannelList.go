@@ -1,5 +1,7 @@
 package models
 
+// TODO: Figure out how to make the terminal get the size and set list dimensions on launch, not just resize
+
 import (
 	"fmt"
 	"log"
@@ -17,8 +19,7 @@ const (
 )
 
 var (
-	listStyle  = lipgloss.NewStyle().Padding(1, 2)
-	titleStyle = lipgloss.NewStyle().MarginLeft(2)
+	listStyle = lipgloss.NewStyle().Padding(1, 2)
 )
 
 type errMsg error
@@ -27,7 +28,6 @@ type listKeyMap struct {
 	addItem    key.Binding
 	removeItem key.Binding
 	selectItem key.Binding
-	adminMenu  key.Binding
 }
 
 type ChannelListModel struct {
@@ -50,7 +50,7 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 
 	newList := list.New(listItems, list.NewDefaultDelegate(), listWidth, listHeight)
 	newList.Title = fmt.Sprintf("%v's Channel List", user.GetID())
-	newList.Styles.Title = titleStyle
+	// newList.Styles.Title = titleStyle
 	newList.SetStatusBarItemName("channel", "channels")
 	keyMap := newKeyMap()
 
@@ -59,7 +59,6 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 			keyMap.addItem,
 			keyMap.removeItem,
 			keyMap.selectItem,
-			keyMap.adminMenu,
 		}
 	}
 
@@ -83,10 +82,9 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := listStyle.GetFrameSize()
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "~":
-			menu := NewAdminMenu(m.user)
-			return menu.Update(msg)
+		switch {
+		case key.Matches(msg, m.keys.selectItem):
+			return m, nil
 		}
 
 	case errMsg:
@@ -122,10 +120,6 @@ func newKeyMap() *listKeyMap {
 		selectItem: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "choose"),
-		),
-		adminMenu: key.NewBinding(
-			key.WithKeys("~"),
-			key.WithHelp("~", "admin"),
 		),
 	}
 }

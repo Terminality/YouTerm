@@ -61,13 +61,13 @@ func NewAdminMenu(user *resources.User) *AdminMenu {
 	items := []list.Item{
 		item("Clear Channels Bucket"),
 		item("Clear Videos Bucket"),
-		//item("3. Clear User Data"),
+		item("Clear User Subbed List"),
 		//item("9. Delete Entire Database"),
 	}
 
 	list := list.New(items, itemDelegate{}, 20, listHeight)
 	list.Title = "Hit a button to do the admin thing"
-	list.Styles.Title = titleStyle
+	// list.Styles.Title = titleStyle
 	list.Styles.PaginationStyle = paginationStyle
 	list.Styles.HelpStyle = helpStyle
 
@@ -94,6 +94,9 @@ func (m AdminMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			Storage.ClearBucket(Storage.VIDEOS)
 			m.status = "Videos bucket cleared!"
 			return m, nil
+		case "3":
+			m.user.UserLists[resources.SUBBED_TO] = []string{}
+			m.status = "Cleared user sub list"
 		case "0", "q", "ctrl+c":
 			return GetMasterModel().GoHome()
 		}
