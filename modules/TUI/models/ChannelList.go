@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"dalton.dog/YouTerm/resources"
+	"dalton.dog/YouTerm/utils"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,6 +29,7 @@ type listKeyMap struct {
 	addItem    key.Binding
 	removeItem key.Binding
 	selectItem key.Binding
+	launchItem key.Binding
 }
 
 type ChannelListModel struct {
@@ -42,7 +44,7 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 	log.Printf("Initializing Channel List -- User: %v\n", user.GetID())
 
 	listItems := []list.Item{}
-	for _, id := range user.GetList(resources.SUBBED_TO) {
+	for id := range user.GetList(resources.SUBBED_TO) {
 		channel, err := resources.LoadOrCreateChannel(id, "", "")
 		checkErr(err)
 		listItems = append(listItems, channel)
@@ -59,6 +61,7 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 			keyMap.addItem,
 			keyMap.removeItem,
 			keyMap.selectItem,
+			keyMap.launchItem,
 		}
 	}
 
@@ -82,7 +85,23 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := listStyle.GetFrameSize()
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
+		selectedItem := m.listModel.SelectedItem()
 		switch {
+		case key.Matches(msg, m.keys.addItem):
+			return m, nil
+		case key.Matches(msg, m.keys.launchItem):
+			if channel, ok := selectedItem.(resources.Channel); ok {
+				utils.LaunchURL(fmt.Sprintf("https://youtube.com/channel/%v", channel.ID))
+			}
+
+			return m, nil
+		case key.Matches(msg, m.keys.removeItem):
+			i := m.listModel.Index()
+			m.listModel.RemoveItem(i)
+			if channel, ok := selectedItem.(resources.Channel); ok {
+				m.user.RemoveFromList(resources.SUBBED_TO, channel.ID)
+			}
+			return m, nil
 		case key.Matches(msg, m.keys.selectItem):
 			return m, nil
 		}
@@ -112,6 +131,10 @@ func newKeyMap() *listKeyMap {
 		addItem: key.NewBinding(
 			key.WithKeys("a"),
 			key.WithHelp("a", "add item"),
+		),
+		launchItem: key.NewBinding(
+			key.WithKeys("l"),
+			key.WithHelp("l", "launch"),
 		),
 		removeItem: key.NewBinding(
 			key.WithKeys("x"),

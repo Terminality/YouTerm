@@ -65,7 +65,7 @@ func NewAdminMenu(user *resources.User) *AdminMenu {
 		//item("9. Delete Entire Database"),
 	}
 
-	list := list.New(items, itemDelegate{}, 20, listHeight)
+	list := list.New(items, itemDelegate{}, 80, listHeight)
 	list.Title = "Hit a button to do the admin thing"
 	// list.Styles.Title = titleStyle
 	list.Styles.PaginationStyle = paginationStyle
@@ -95,7 +95,7 @@ func (m AdminMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = "Videos bucket cleared!"
 			return m, nil
 		case "3":
-			m.user.UserLists[resources.SUBBED_TO] = []string{}
+			m.user.UserLists[resources.SUBBED_TO] = map[string]bool{}
 			m.status = "Cleared user sub list"
 		case "0", "q", "ctrl+c":
 			return GetMasterModel().GoHome()
