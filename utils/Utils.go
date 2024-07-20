@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+func CheckErrFatal(err error, errMsg string) {
+	CheckErr(err, errMsg, true)
+}
+
 func CheckErr(err error, errMsg string, fatal bool) {
 	if err != nil {
 		log.Printf("%v: %v", errMsg, err)

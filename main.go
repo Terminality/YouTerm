@@ -27,7 +27,9 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	osUser "os/user"
+	"runtime/pprof"
 
 	"github.com/google/uuid"
 
@@ -35,14 +37,40 @@ import (
 	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/modules/TUI"
 	"dalton.dog/YouTerm/resources"
+	"dalton.dog/YouTerm/utils"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
+	// Flag Parsing and Doing Stuff
+	clearAll := flag.Bool("clear-all", false, "Clear channel and video buckets, and user lists")
+	clearChannels := flag.Bool("clear-channel", false, "Clear channel bucket")
+	clearVideos := flag.Bool("clear-videos", false, "Clear video bucket")
+
+	shouldProfile := flag.Bool("prof", false, "Profile program run")
+	// shouldDebug := flag.Bool("debug", false, "Enable debugging output and logging")
+
+	flag.Parse()
+
+	if *clearAll || *clearChannels {
+		Storage.ClearBucket(Storage.CHANNELS)
+	}
+	if *clearAll || *clearVideos {
+		Storage.ClearBucket(Storage.VIDEOS)
+	}
+
+	if *shouldProfile {
+		file, err := os.Create("1BRC.prof")
+		utils.CheckErr(err, "Couldn't open profiling file", true)
+		pprof.StartCPUProfile(file)
+		defer pprof.StopCPUProfile()
+	}
+
 	f, err := tea.LogToFile("debug.log", "debug")
-	checkErr(err)
+	utils.CheckErr(err, "Couldn't open debug logging file", true)
 	defer f.Close()
+	// End adming parsing stuff
 
 	execUUID := uuid.NewString()
 
@@ -55,37 +83,15 @@ func main() {
 
 	// Initialize the API manager, create context/server connection
 	err = API.InitializeManager()
-	checkErr(err)
+	utils.CheckErrFatal(err, "Unable to initialize API manager")
 
 	curUser, err := osUser.Current()
-	checkErr(err)
+	utils.CheckErrFatal(err, "Unable to load current user")
 	user := resources.LoadOrCreateUser(curUser.Username)
 
 	// This ensures any changes to the user get closed when program closes
 	defer Storage.SaveResource(user)
 
 	err = TUI.RunProgram(user)
-	checkErr(err)
-}
-
-// Utility function for error checking
-func checkErr(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
-
-func checkFlags() {
-	clearAll := flag.Bool("clear-all", false, "Clear channel and video buckets, and user lists")
-	clearChannels := flag.Bool("clear-channel", false, "Clear channel bucket")
-	clearVideos := flag.Bool("clear-videos", false, "Clear video bucket")
-
-	flag.Parse()
-
-	if *clearAll || *clearChannels {
-		Storage.ClearBucket(Storage.CHANNELS)
-	}
-	if *clearAll || *clearVideos {
-		Storage.ClearBucket(Storage.VIDEOS)
-	}
+	utils.CheckErrFatal(err, "Error encountered while running program")
 }
