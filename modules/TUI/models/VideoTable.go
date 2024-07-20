@@ -25,9 +25,9 @@ const (
 
 func makeVideoRow(video *resources.Video) table.Row {
 	return table.NewRow(table.RowData{
-		keyVideoID:       video.ID,
-		keyVideoTitle:    video.Title,
-		keyVideoDesc:     video.Description,
+		keyVideoID:    video.ID,
+		keyVideoTitle: video.Title,
+		// keyVideoDesc:     video.Description,
 		keyVideoPubAt:    video.PublishedAt,
 		keyVideoChannel:  video.ChannelTitle,
 		keyVideoDuration: video.Duration,

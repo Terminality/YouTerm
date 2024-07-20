@@ -55,7 +55,7 @@ func LoadOrCreateChannel(userID string, username string, userHandle string) (*Ch
 
 	var channel *Channel
 	json.Unmarshal(bytes, &channel)
-	channel.LoadUploads()
+	go channel.LoadUploads()
 	return channel, nil
 
 }

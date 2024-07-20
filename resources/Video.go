@@ -11,10 +11,10 @@ import (
 )
 
 type Video struct {
-	ID           string
-	Bucket       string
-	Title        string
-	Description  string
+	ID     string
+	Bucket string
+	Title  string
+	// Description  string
 	PublishedAt  string
 	ChannelID    string
 	ChannelTitle string
@@ -56,10 +56,10 @@ func NewVideo(videoID string) (*Video, error) {
 	videoRsrc := resp.Items[0]
 
 	video := Video{
-		ID:           videoID,
-		Bucket:       Storage.VIDEOS,
-		Title:        videoRsrc.Snippet.Title,
-		Description:  videoRsrc.Snippet.Description,
+		ID:     videoID,
+		Bucket: Storage.VIDEOS,
+		Title:  videoRsrc.Snippet.Title,
+		// Description:  videoRsrc.Snippet.Description,
 		PublishedAt:  videoRsrc.Snippet.PublishedAt,
 		ChannelID:    videoRsrc.Snippet.ChannelId,
 		ChannelTitle: videoRsrc.Snippet.ChannelTitle,
