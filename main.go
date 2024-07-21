@@ -62,13 +62,13 @@ func main() {
 
 	if *shouldProfile {
 		file, err := os.Create("YouTerm.prof")
-		utils.CheckErr(err, "Couldn't open profiling file", true)
+		utils.CheckErrFatal(err, "Couldn't open profiling file")
 		pprof.StartCPUProfile(file)
 		defer pprof.StopCPUProfile()
 	}
 
 	f, err := tea.LogToFile("debug.log", "debug")
-	utils.CheckErr(err, "Couldn't open debug logging file", true)
+	utils.CheckErrFatal(err, "Couldn't open debug logging file")
 	defer f.Close()
 	// End admin parsing stuff
 
@@ -85,10 +85,12 @@ func main() {
 	err = API.InitializeManager()
 	utils.CheckErrFatal(err, "Unable to initialize API manager")
 
+	// Load User stuff from the OS and the database
 	var user *resources.User
 	curUser, err := osUser.Current()
 	utils.CheckErrFatal(err, "Unable to load current user")
 	user = resources.LoadOrCreateUser(curUser.Username)
+
 	// This ensures any changes to the user get closed when program closes
 	defer Storage.SaveResource(user)
 

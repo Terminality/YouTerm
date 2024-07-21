@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"dalton.dog/YouTerm/modules/TUI/styles"
 	"dalton.dog/YouTerm/resources"
 	"dalton.dog/YouTerm/utils"
 	"github.com/charmbracelet/bubbles/key"
@@ -13,15 +14,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-)
-
-const (
-	listHeight = 50
-	listWidth  = 80
-)
-
-var (
-	listStyle = lipgloss.NewStyle().Padding(1, 2)
 )
 
 type errMsg error
@@ -42,9 +34,6 @@ type ChannelListModel struct {
 	user      *resources.User
 	err       error
 	modelName string
-
-	width  int
-	height int
 }
 
 func NewChannelList(user *resources.User) *ChannelListModel {
@@ -53,12 +42,12 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 	listItems := []list.Item{}
 	for id := range user.GetList(resources.SUBBED_TO) {
 		channel, err := resources.LoadOrCreateChannel(id, "", "")
-		checkErr(err)
+		utils.CheckErrNonFatal(err, "Couldn't load channel")
 		listItems = append(listItems, channel)
 	}
 
 	termW, termH, err := utils.GetTerminalSize()
-	utils.CheckErr(err, "Couldn't get terminal size", false)
+	utils.CheckErrFatal(err, "Couldn't get terminal size")
 
 	newList := list.New(listItems, list.NewDefaultDelegate(), termW/2, int(float64(termH)*0.8))
 	newList.Title = fmt.Sprintf("%v's Channel List", user.GetID())
@@ -96,7 +85,7 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		h, v := listStyle.GetFrameSize()
+		h, v := styles.ChannelListStyle.GetFrameSize()
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
 		if m.listModel.FilterState() == list.Filtering {
@@ -167,7 +156,7 @@ func (m ChannelListModel) View() string {
 	}
 
 	w, h, err := utils.GetTerminalSize()
-	utils.CheckErr(err, "Couldn't get terminal size", false)
+	utils.CheckErrFatal(err, "Couldn't get terminal size")
 
 	return lipgloss.Place(w, h, lipgloss.Center, lipgloss.Center, outStr)
 }
@@ -196,23 +185,16 @@ func newKeyMap() *listKeyMap {
 // TODO: Set up username->ID mapping (or just another username->Channel mapping?)
 func loadChannelFromAPI(username string) tea.Cmd {
 	return func() tea.Msg {
-		channel, err := resources.LoadOrCreateChannel("", username, "")
+		var channel *resources.Channel
+		var err error
+		channel, err = resources.LoadOrCreateChannel("", username, "")
 		if err != nil {
-			return errMsg(err)
+			channel, err = resources.LoadOrCreateChannel("", "", username)
+			if err != nil {
+				return errMsg(err)
+			}
 		}
 		log.Printf("Loaded channel (%v), returning as channelMsg\n", channel.ChannelTitle)
 		return channelMsg(channel)
-	}
-}
-
-// func loadChannel(username string) tea.Cmd {
-// 	return func() tea.Msg {
-// 		channel, err := Storage.LoadResource(Storage.CHANNELS, )
-// 	}
-// }
-
-func checkErr(e error) {
-	if e != nil {
-		log.Fatal(e)
 	}
 }

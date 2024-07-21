@@ -10,13 +10,22 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
-func CheckErrFatal(err error, errMsg string) {
-	CheckErr(err, errMsg, true)
+func CheckErrFatal(err error, customMsg string) {
+	checkErr(err, customMsg, true)
 }
 
-func CheckErr(err error, errMsg string, fatal bool) {
+func CheckErrNonFatal(err error, customMsg string) {
+	checkErr(err, customMsg, false)
+}
+
+func checkErr(err error, customMsg string, fatal bool) {
 	if err != nil {
-		log.Printf("%v: %v", errMsg, err)
+		if customMsg != "" {
+			log.Printf("%v: %v", customMsg, err)
+		} else {
+			log.Println(err)
+		}
+
 		if fatal {
 			os.Exit(1)
 		}

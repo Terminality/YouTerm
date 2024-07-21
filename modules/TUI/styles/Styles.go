@@ -35,6 +35,8 @@ const (
 // Styles
 var (
 	LogoColorStyle = lipgloss.NewStyle().Foreground(RED)
+
+	ChannelListStyle = lipgloss.NewStyle()
 )
 
 func GetColoredLogo() string {

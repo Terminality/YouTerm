@@ -9,6 +9,7 @@ import (
 
 	"dalton.dog/YouTerm/modules/Storage"
 	"dalton.dog/YouTerm/resources"
+	"dalton.dog/YouTerm/utils"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -62,10 +63,12 @@ func NewAdminMenu(user *resources.User) *AdminMenu {
 		item("Clear Channels Bucket"),
 		item("Clear Videos Bucket"),
 		item("Clear User Subbed List"),
-		//item("9. Delete Entire Database"),
 	}
 
-	list := list.New(items, itemDelegate{}, 80, listHeight)
+	w, h, err := utils.GetTerminalSize()
+	utils.CheckErrFatal(err, "Couldn't get terminal size")
+
+	list := list.New(items, itemDelegate{}, w, h)
 	list.Title = "Hit a button to do the admin thing"
 	// list.Styles.Title = titleStyle
 	list.Styles.PaginationStyle = paginationStyle
