@@ -11,6 +11,7 @@ require (
 	github.com/evertras/bubble-table v0.16.1
 	github.com/google/uuid v1.6.0
 	go.etcd.io/bbolt v1.3.10
+	golang.org/x/oauth2 v0.21.0
 	google.golang.org/api v0.187.0
 )
 
@@ -52,7 +53,6 @@ require (
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
