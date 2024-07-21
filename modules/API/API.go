@@ -5,65 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 
-	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
 
 var masterAPI *apiManager
 
 type apiManager struct {
-	ctx     context.Context
 	apiKey  string
 	service *youtube.Service
 }
 
 func InitializeManager() error {
-	ctx := context.Background()
-	APIKey, err := getKeyFromEnv()
-
-	if err != nil {
-		return err
-	}
-
-	service, err := getServiceFromAPI(ctx, APIKey)
-
+	service, err := GetAuthenticatedService(context.Background())
 	if err != nil {
 		return err
 	}
 
 	masterAPI = &apiManager{
-		ctx:     ctx,
-		apiKey:  APIKey,
 		service: service,
 	}
 
 	log.Println("Initialized API manager")
 
 	return nil
-}
-
-func getKeyFromEnv() (string, error) {
-	log.Println("Loading API key from env var")
-	api := os.Getenv("YOUTERM_API_KEY")
-	if api != "" {
-		return api, nil
-	}
-	// TODO: Prompt user for API key, then save it to env variable (os.Setenv()) or user struct or something
-	//	Or just don't even do this and set up OAuth2 instead
-
-	return "", errors.New("Couldn't load YOUTERM_API_KEY from environment variable.")
-}
-
-func getServiceFromAPI(ctx context.Context, APIkey string) (*youtube.Service, error) {
-	log.Println("Creating service from API key")
-	service, err := youtube.NewService(ctx, option.WithAPIKey(APIkey))
-	if err != nil {
-		return nil, errors.New("Error creating new YouTube service")
-	}
-
-	return service, nil
 }
 
 func RequestVideo(videoID string) (*youtube.VideoListResponse, error) {

@@ -42,6 +42,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const Version = "0.1.0"
+
 func main() {
 	// Flag Parsing and Doing Stuff
 	clearAll := flag.Bool("clear-all", false, "Clear channel and video buckets, and user lists")

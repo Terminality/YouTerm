@@ -14,7 +14,7 @@ import (
 
 // String Constants
 const (
-	SAVE_DIR  string = ".terminality"
+	SAVE_DIR  string = ".terminality/youterm"
 	SAVE_FILE string = "youterm.db"
 
 	// Buckets
