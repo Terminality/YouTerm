@@ -33,8 +33,10 @@ const (
 )
 
 // Styles
-var ()
+var (
+	LogoColorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("FF0000"))
+)
 
 func GetColoredLogo() string {
-	return lipgloss.JoinHorizontal(lipgloss.Top, lipgloss.NewStyle().Foreground(RED).Render(PlayButtonIcon), YouTermLogo)
+	return lipgloss.JoinHorizontal(lipgloss.Top, LogoColorStyle.Render(PlayButtonIcon), YouTermLogo)
 }

@@ -99,6 +99,9 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := listStyle.GetFrameSize()
 		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
+		if m.listModel.FilterState() == list.Filtering {
+			break
+		}
 		selectedItem := m.listModel.SelectedItem()
 		switch {
 		case key.Matches(msg, m.keys.addItem) && !m.inputActive:
