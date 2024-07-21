@@ -100,18 +100,16 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.inputModel.Focus()
 			return m, nil
 		case key.Matches(msg, m.keys.launchItem) && !m.inputActive:
-			if channel, ok := selectedItem.(resources.Channel); ok {
-				utils.LaunchURL(fmt.Sprintf("https://youtube.com/channel/%v", channel.ID))
-			}
+			channel := selectedItem.(*resources.Channel)
+			utils.LaunchURL(fmt.Sprintf("https://youtube.com/channel/%v", channel.ID))
 
 			return m, nil
 
 		case key.Matches(msg, m.keys.removeItem) && !m.inputActive:
 			i := m.listModel.Index()
 			m.listModel.RemoveItem(i)
-			if channel, ok := selectedItem.(resources.Channel); ok {
-				m.user.RemoveFromList(resources.SUBBED_TO, channel.ID)
-			}
+			channel := selectedItem.(*resources.Channel)
+			m.user.RemoveFromList(resources.SUBBED_TO, channel.ID)
 			return m, nil
 
 		case key.Matches(msg, m.keys.selectItem):

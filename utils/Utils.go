@@ -22,6 +22,7 @@ func CheckErr(err error, errMsg string, fatal bool) {
 }
 
 func LaunchURL(url string) error {
+	log.Printf("Attempting to launch URL %v\n", url)
 	var cmd string
 	var args []string
 
