@@ -19,7 +19,6 @@ jobs:
       id: current-time
       with:
         format: MMM DD (hh mmA [GMT])
-        
     - name: Checking out repo
       uses: actions/checkout@v4
 
@@ -29,16 +28,15 @@ jobs:
         go-version: '1.22'
 
     - name: Install dependencies
-      run: |
-        go get github.com/charmbracelet/bubbles
-        go get github.com/charmbracelet/bubbletea
-        go get github.com/charmbracelet/lipgloss
-        go get github.com/charmbracelet/log
-        go get github.com/charmbracelet/x/term
-        go get github.com/evertras/bubble-table
-        go get github.com/google/uuid
-        go get go.etcd.io/bbolt
-        go get google.golang.org/api
+      run: go get github.com/charmbracelet/bubbles
+      run: go get github.com/charmbracelet/bubbletea
+      run: go get github.com/charmbracelet/lipgloss
+      run: go get github.com/charmbracelet/log
+      run: go get github.com/charmbracelet/x/term
+      run: go get github.com/evertras/bubble-table
+      run: go get github.com/google/uuid
+      run: go get go.etcd.io/bbolt
+      run: go get google.golang.org/api
 
     - name: Build
       id: export
