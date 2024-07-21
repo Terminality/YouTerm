@@ -86,10 +86,6 @@ func (m *MasterModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		}
-	case ValueSubmittedMsg:
-		log.Printf("Value Submitted Message Received: %v", msg.Value)
-		m.curModel, cmd = m.curModel.Update(msg)
-		return m, cmd
 	}
 
 	m.curModel, cmd = m.curModel.Update(msg)
