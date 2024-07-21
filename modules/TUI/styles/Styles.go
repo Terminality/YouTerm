@@ -27,10 +27,14 @@ const (
 `
 )
 
-var (
-	PlayButtonColor = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
+// Colors
+const (
+	RED = lipgloss.Color("FF0000")
 )
 
+// Styles
+var ()
+
 func GetColoredLogo() string {
-	return lipgloss.JoinHorizontal(lipgloss.Top, PlayButtonColor.Render(PlayButtonIcon), YouTermLogo)
+	return lipgloss.JoinHorizontal(lipgloss.Top, lipgloss.NewStyle().Foreground(RED).Render(PlayButtonIcon), YouTermLogo)
 }

@@ -42,6 +42,9 @@ type ChannelListModel struct {
 	user      *resources.User
 	err       error
 	modelName string
+
+	width  int
+	height int
 }
 
 func NewChannelList(user *resources.User) *ChannelListModel {
@@ -54,7 +57,10 @@ func NewChannelList(user *resources.User) *ChannelListModel {
 		listItems = append(listItems, channel)
 	}
 
-	newList := list.New(listItems, list.NewDefaultDelegate(), listWidth, listHeight)
+	termW, termH, err := utils.GetTerminalSize()
+	utils.CheckErr(err, "Couldn't get terminal size", false)
+
+	newList := list.New(listItems, list.NewDefaultDelegate(), termW/2, int(float64(termH)*0.8))
 	newList.Title = fmt.Sprintf("%v's Channel List", user.GetID())
 	// newList.Styles.Title = titleStyle
 	newList.SetStatusBarItemName("channel", "channels")
@@ -99,6 +105,7 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.inputActive = true
 			m.inputModel.Focus()
 			return m, nil
+
 		case key.Matches(msg, m.keys.launchItem) && !m.inputActive:
 			channel := selectedItem.(*resources.Channel)
 			utils.LaunchURL(fmt.Sprintf("https://youtube.com/channel/%v", channel.ID))
@@ -149,11 +156,17 @@ func (m ChannelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ChannelListModel) View() string {
+	var outStr string
 	if m.inputActive {
-		return m.inputModel.View()
+		outStr = m.inputModel.View()
 	} else {
-		return m.listModel.View()
+		outStr = m.listModel.View()
 	}
+
+	w, h, err := utils.GetTerminalSize()
+	utils.CheckErr(err, "Couldn't get terminal size", false)
+
+	return lipgloss.Place(w, h, lipgloss.Center, lipgloss.Center, outStr)
 }
 
 func newKeyMap() *listKeyMap {

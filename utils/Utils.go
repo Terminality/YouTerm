@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/charmbracelet/x/term"
 )
 
 func CheckErrFatal(err error, errMsg string) {
@@ -19,6 +21,14 @@ func CheckErr(err error, errMsg string, fatal bool) {
 			os.Exit(1)
 		}
 	}
+}
+
+func GetTerminalSize() (int, int, error) {
+	width, height, err := term.GetSize(os.Stdin.Fd())
+	if err != nil {
+		return 0, 0, err
+	}
+	return width, height, nil
 }
 
 func LaunchURL(url string) error {
